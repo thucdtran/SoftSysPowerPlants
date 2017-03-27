@@ -16,9 +16,13 @@ For the graphics aspect, we will be using OpenGL. Our 2D operations in OpenGL ar
 #### Demonstrate that you have assembled the resources you need to get started.  One good way to do that is to include an annotated bibliography with a pointer to each resource and a few sentences that describe the content.
 
 http://bridgecon.sourceforge.net/: An example of a bridge constructor physics simulation. The website includes graphics that can aid us in creating a GUI for debugging, but no source code is available. 
+
 https://www.scribd.com/doc/20641372/Physics-of-Bridges: Powerpoint detailing physical aspects that we will have to model in our simulation (tension, compression, arches, trusses, etc)...
+
 https://www.mathworks.com/help/gads/how-the-genetic-algorithm-works.html: Description of how genetic algorithms work using MATLAB. Describes random initialization, fitness (which will be structural integrity for us), mutations, etc. 
+
 https://open.gl/ A tutorial for OpenGL. This will help us get started on how to create the graphical interface to show results of our simulations and generative design. 
+
 http://www.opengl-tutorial.org/miscellaneous/building-your-own-c-application/ A tutorial for how to use OpenGL in C in particular. 
 
 #### Present a product backlog for the next two sprints that represents a concrete plan that will keep the entire team productively engaged (this can be a link to your Trello board).  Each item in the product backlog should represent a good sized unit of work, and have an appropriate definition of done. NB: You will also complete ~4 chapters of core class activities each sprint in addition to your project-specific work.
