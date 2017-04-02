@@ -3,14 +3,13 @@
 #include <GL/glut.h>
 #include <iostream>
 #include <vector>
-//#include "Point.h"
+#include <set>
+#include <map>
+#include <string>
 
 // compile via 
-//  g++ draw.cpp -lm -lGL -lGLU -lglut
+//  g++ draw.cpp -lm -lGL -lGLU -lglut -o draw
 
-// A simple introductory program; its main window contains a static picture
-// of a triangle, whose three vertices are red, green and blue.  The program
-// illustrates viewing with default viewing parameters only.
 
 #ifdef __APPLE_CC__
 #include <GLUT/glut.h>
@@ -20,45 +19,62 @@
 
 using namespace std;
 
-static vector<pair<int, int> > points;
+class Point {
+  public:
+    double x;
+    double y;
+    Point(double _x, double _y);
+    //set<Beam*> neighbors;
+  private:
+};
 
-// Clears the current window and draws a triangle.
-void display() {
-
-  // Set every pixel in the frame buffer to the current clear color.
-  glClear(GL_COLOR_BUFFER_BIT);
-
-  // Drawing is done by specifying a sequence of vertices.  The way these
-  // vertices are connected (or not connected) depends on the argument to
-  // glBegin.  GL_POLYGON constructs a filled polygon.
-  glBegin(GL_POLYGON);
-    glColor3f(1, 0, 0); glVertex3f(-0.6, -0.75, 0.5);
-    glColor3f(0, 1, 0); glVertex3f(0.6, -0.75, 0);
-    glColor3f(0, 0, 1); glVertex3f(0, 0.75, 0);
-  glEnd();
-
-  // Flush drawing command buffer to make drawing happen as soon as possible.
-  glFlush();
+Point::Point(double _x, double _y) {
+  x = _x;
+  y = _y;
 }
 
+class Beam {
+  public:
+    Point* p1;
+    Point* p2;
+    Beam(Point* _p1, Point* _p2);
+  private: 
+};
 
-void drawPoints() {
+
+Beam::Beam(Point* _p1, Point* _p2) {
+  p1 = _p1;
+  p2 = _p2;
+}
+
+void drawPoint(Point* p) {
 
 	// Drawing is done by specifying a sequence of vertices.  The way these
 	// vertices are connected (or not connected) depends on the argument to
 	// glBegin.  GL_POLYGON constructs a filled polygon.
-	for (int i = 0; i < points.size(); i++) {
-		glBegin(GL_POLYGON);
-			glColor3f(1, 0, 0); glVertex3f(points[i].first - 0.1, points[i].second - 0.1, 0);
-			glColor3f(0, 1, 0); glVertex3f(points[i].first - 0.1, points[i].second + 0.1, 0);
-			glColor3f(0, 0, 1); glVertex3f(points[i].first + 0.1, points[i].second + 0.1, 0);
-			glColor3f(1, 1, 1); glVertex3f(points[i].first + 0.1, points[i].second - 0.1, 0);
-		glEnd();
-		cout << "Drawing point " << i << endl;
-		glFlush();
-	}
+
+  double x = p->x;
+  double y = p->y;
+	glBegin(GL_POLYGON);
+    /*glPointSize(40);
+    glColor3f(0, 1, 0);
+    glVertex3f(x, y, 0);*/
+		glColor3f(0, 1, 0); 
+    glVertex3f(x - 0.02, y - 0.025, 0);
+		glVertex3f(x + 0.02, y - 0.025, 0);
+		glVertex3f(x, y + 0.025, 0);
+	glEnd();
+	cout << "Drawing point (" << x << ", " << y << endl;
 
 	// Flush drawing command buffer to make drawing happen as soon as possible.
+}
+
+void drawLine(Beam* beam) {
+  glBegin(GL_LINES);
+    glColor3f(1, 0, 0);
+    glVertex2f(beam->p1->x, beam->p1->y);
+    glVertex2f(beam->p2->x, beam->p2->y);
+  glEnd();
 }
 
 // Initializes GLUT, the display mode, and main window; registers callbacks;
@@ -73,16 +89,26 @@ int main(int argc, char** argv) {
   // Position window at (80,80)-(480,380) and give it a title.
   glutInitWindowPosition(80, 80);
   glutInitWindowSize(400, 300);
-  glutCreateWindow("A Simple Triangle");
+  glutCreateWindow("Drawing beams");
 
   // Tell GLUT that whenever the main window needs to be repainted that it
   // should call the function display().
   glClear(GL_COLOR_BUFFER_BIT);
 
-  points.push_back(make_pair(0, 0));
-  points.push_back(make_pair(0.5, 0.1));
-  points.push_back(make_pair(-0.1, -0.3));
-  glutDisplayFunc(drawPoints);
+  // Window stretches from (-1,1) in the x-axis and y-axis.
+  Point* p1 = new Point(0.2, 0.3);
+  Point* p2 = new Point(-0.4, 0.14);
+  Point* p3 = new Point(0, 0);
+  Beam* b1 = new Beam(p1, p2);
+  Beam* b2 = new Beam(p1, p3);
+
+  drawLine(b1);
+  drawLine(b2);
+  drawPoint(p1);
+  drawPoint(p2);
+  drawPoint(p3);
+
+  glutSwapBuffers();
 
   // Tell GLUT to start reading and processing events.  This function
   // never returns; the program only exits when the user closes the main
@@ -92,18 +118,3 @@ int main(int argc, char** argv) {
 
   glutMainLoop();
 }
-
-
-
-/*
-void addBeam() {
-	int x1, y1;
-	int x2, y2;
-
-	point p1 = new point(x1, y1);
-	point p2 = new point(x2, y2);
-}
-
-void draw(Point p1) {
-
-}*/
