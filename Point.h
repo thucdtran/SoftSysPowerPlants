@@ -2,6 +2,9 @@ class Point {
 	public:
 		double x;
 		double y;
+	    Point(double _x, double _y);
+    	//set<Beam*> neighbors;
+
 	private:
 };
 

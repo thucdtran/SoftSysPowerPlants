@@ -1,12 +1,12 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 #include <iostream>
 #include <vector>
 #include <set>
 #include <map>
 #include <string>
-
+#include "Model.h"
 // compile via 
 //  g++ draw.cpp -lm -lGL -lGLU -lglut -o draw
 
@@ -19,33 +19,7 @@
 
 using namespace std;
 
-class Point {
-  public:
-    double x;
-    double y;
-    Point(double _x, double _y);
-    //set<Beam*> neighbors;
-  private:
-};
-
-Point::Point(double _x, double _y) {
-  x = _x;
-  y = _y;
-}
-
-class Beam {
-  public:
-    Point* p1;
-    Point* p2;
-    Beam(Point* _p1, Point* _p2);
-  private: 
-};
-
-
-Beam::Beam(Point* _p1, Point* _p2) {
-  p1 = _p1;
-  p2 = _p2;
-}
+Model a;
 
 void drawPoint(Point* p) {
 
@@ -64,7 +38,7 @@ void drawPoint(Point* p) {
 		glVertex3f(x + 0.02, y - 0.025, 0);
 		glVertex3f(x, y + 0.025, 0);
 	glEnd();
-	cout << "Drawing point (" << x << ", " << y << endl;
+	cout << "Drawing point (" << x << ", " << y <<")"<< endl;
 
 	// Flush drawing command buffer to make drawing happen as soon as possible.
 }
@@ -82,12 +56,13 @@ void mouse(int button, int state, int x, int y)
 {
   //This is a temorary hack for scaling a location. DO DELETE -> or convert 
   //Into doing more stuff here. 
-  Point * p4 = new Point((x-200.0)/200.0,-(y-150.0)/150.0);
+  //Point * p4 = new Point((x-200.0)/200.0,-(y-150.0)/150.0);
+  a.mouse(button, state, x, y);
 
   //When the button is first clicked
   if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
     std::cout<<"Clicked on ("<<x<<","<<y<<")\n";
-    drawPoint(p4);
+    //drawPoint(p4);
   }
   //When the button is released
   else if(button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
@@ -98,6 +73,24 @@ void mouse(int button, int state, int x, int y)
   glutSwapBuffers();
 
 }
+
+
+void motion(int x, int y)
+{
+  //std::cout<<"Moving over ("<<x<<","<<y<<")\n";
+  //Insert Mouse Motion Specific Code Here.
+}
+
+void keyboard(unsigned char key, int x, int y)
+{
+  //Insert keyboard specific code here. 
+  cout<<"You just pressed:"<<key<<"!\n";
+  a.keyboard(key, x, y);
+  if(key=='q')
+    exit(0);
+
+}
+
 
 
 // Initializes GLUT, the display mode, and main window; registers callbacks;
@@ -136,7 +129,8 @@ int main(int argc, char** argv) {
 
   //Setting up Mouse Event for GLUT
   glutMouseFunc(mouse);
-
+  glutPassiveMotionFunc(motion);
+  glutKeyboardFunc(keyboard);
 
   // Tell GLUT to start reading and processing events.  This function
   // never returns; the program only exits when the user closes the main
@@ -144,6 +138,7 @@ int main(int argc, char** argv) {
 
   //Point p1 = new Point(10.0, 10.0);
 
-
-  glutMainLoop();
+  while(1){
+  glutMainLoopEvent();
+  }
 }
