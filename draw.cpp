@@ -77,6 +77,29 @@ void drawLine(Beam* beam) {
   glEnd();
 }
 
+
+void mouse(int button, int state, int x, int y)
+{
+  //This is a temorary hack for scaling a location. DO DELETE -> or convert 
+  //Into doing more stuff here. 
+  Point * p4 = new Point((x-200.0)/200.0,-(y-150.0)/150.0);
+
+  //When the button is first clicked
+  if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+    std::cout<<"Clicked on ("<<x<<","<<y<<")\n";
+    drawPoint(p4);
+  }
+  //When the button is released
+  else if(button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
+    std::cout<<"goodbye!\n";
+  }
+
+  //Switches the buffer to display new content
+  glutSwapBuffers();
+
+}
+
+
 // Initializes GLUT, the display mode, and main window; registers callbacks;
 // enters the main event loop.
 int main(int argc, char** argv) {
@@ -110,11 +133,17 @@ int main(int argc, char** argv) {
 
   glutSwapBuffers();
 
+
+  //Setting up Mouse Event for GLUT
+  glutMouseFunc(mouse);
+
+
   // Tell GLUT to start reading and processing events.  This function
   // never returns; the program only exits when the user closes the main
   // window or kills the process.
 
   //Point p1 = new Point(10.0, 10.0);
+
 
   glutMainLoop();
 }
