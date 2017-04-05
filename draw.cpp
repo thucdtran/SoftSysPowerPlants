@@ -1,5 +1,8 @@
 // compile via 
-//  g++ draw.cpp -lm -lGL -lGLU -lglut -o draw
+// compile first: 
+// g++ Point.h -std=
+//
+//  g++ draw.cpp -lm -lGL -lGLU -lglut -std=c++11 -o draw
 
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -9,7 +12,7 @@
 #include <set>
 #include <map>
 #include <string>
-#include "Beam.h"
+#include "Bridge.h"
 
 #ifdef __APPLE_CC__
 #include <GLUT/glut.h>
@@ -17,8 +20,9 @@
 #include <GL/glut.h>
 #endif
 
+void drawBridge(Bridge* bridge);
+void drawBeam(Beam* beam);
 void drawPoint(Point* p);
-void drawLine(Beam* beam);
 
 using namespace std;
 
@@ -43,48 +47,15 @@ int main(int argc, char** argv) {
 
   // Window stretches from (-1,1) in the x-axis and y-axis.
 
-  srand();
+  srand(time(NULL));
 
   Bridge* bridge = new Bridge();
-  bridge->generateBridge(10, 1);
+  bridge->generateBridge(100, .2);
 
-  /*
-  Point* p1 = new Point(0.2, 0.3);
-  Point* p2 = new Point(-0.4, 0.14);
-  Point* p3 = new Point(0, 0);
-  Beam* b1 = new Beam(p1, p2);
-  Beam* b2 = new Beam(p1, p3);
-
-<<<<<<< HEAD
-  vector<Point*> point_list;
-  point_list.push_back(p1);
-  point_list.push_back(p2);
-  point_list.push_back(p3);
-
-  /*for (int i = 0; i < point_list.size(); i++) {
-    cout << point_list[i]->x << ", " << point_list[i]->y << endl;
-  }*/
-
-  map<Point*, vector<Beam*> > point_to_beam;
-
-  
-
-  drawLine(b1);
-  drawLine(b2);
-  drawPoint(p1);
-  drawPoint(p2);
-  drawPoint(p3);
-
+  drawBridge(bridge);
 
 
   glutSwapBuffers();
-
-  // Tell GLUT to start reading and processing events.  This function
-  // never returns; the program only exits when the user closes the main
-  // window or kills the process.
-
-  //Point p1 = new Point(10.0, 10.0);
-
   glutMainLoop();
 }
 
@@ -92,34 +63,30 @@ int main(int argc, char** argv) {
 
 
 
-
-
-void drawPoint(Point* p) {
-
-  // Drawing is done by specifying a sequence of vertices.  The way these
-  // vertices are connected (or not connected) depends on the argument to
-  // glBegin.  GL_POLYGON constructs a filled polygon.
-
-  double x = p->x;
-  double y = p->y;
-  glBegin(GL_POLYGON);
-    /*glPointSize(40);
-    glColor3f(0, 1, 0);
-    glVertex3f(x, y, 0);*/
-    glColor3f(0, 1, 0); 
-    glVertex3f(x - 0.02, y - 0.025, 0);
-    glVertex3f(x + 0.02, y - 0.025, 0);
-    glVertex3f(x, y + 0.025, 0);
-  glEnd();
-  cout << "Drawing point (" << x << ", " << y << endl;
-
-  // Flush drawing command buffer to make drawing happen as soon as possible.
+void drawBridge(Bridge* bridge) {
+  for (Beam* beam : bridge->getBeams()) {
+    drawBeam(beam);
+  }
+  for (Point* point : bridge->getPoints()) {
+    drawPoint(point);
+  }
 }
 
-void drawLine(Beam* beam) {
+void drawBeam(Beam* beam) {
   glBegin(GL_LINES);
     glColor3f(1, 0, 0);
     glVertex2f(beam->p1->x, beam->p1->y);
     glVertex2f(beam->p2->x, beam->p2->y);
+  glEnd();
+}
+
+void drawPoint(Point* p) {
+  double x = p->x;
+  double y = p->y;
+  glBegin(GL_POLYGON);
+    glColor3f(0, 1, 0); 
+    glVertex3f(x - 0.02, y - 0.025, 0);
+    glVertex3f(x + 0.02, y - 0.025, 0);
+    glVertex3f(x, y + 0.025, 0);
   glEnd();
 }
