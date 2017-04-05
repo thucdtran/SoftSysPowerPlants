@@ -48,12 +48,18 @@ int main(int argc, char** argv) {
   Beam* b1 = new Beam(p1, p2);
   Beam* b2 = new Beam(p1, p3);
 
+  vector<Point*> point_list;
+  point_list.push_back(p1);
+  point_list.push_back(p2);
+  point_list.push_back(p3);
+
+  /*for (int i = 0; i < point_list.size(); i++) {
+    cout << point_list[i]->x << ", " << point_list[i]->y << endl;
+  }*/
+
   map<Point*, vector<Beam*> > point_to_beam();
 
-  //point_to_beam.insert(pair<Point*, vector<Beam*> >(0));
-
-  //cpoint_to_beam[p1][0];//.push_back(b1);
-  //point_to_beam[p2].push_back(b2);
+  
 
 
   drawLine(b1);
