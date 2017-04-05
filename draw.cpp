@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
   srand(time(NULL));
 
   Bridge* bridge = new Bridge();
-  bridge->generateBridge(100, .2);
+  bridge->generateBridge(10000, .2);
 
   drawBridge(bridge);
 
