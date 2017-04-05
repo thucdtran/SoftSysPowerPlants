@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
 
   // Position window at (80,80)-(480,380) and give it a title.
   glutInitWindowPosition(80, 80);
-  glutInitWindowSize(400, 300);
+  glutInitWindowSize(800, 600);
   glutCreateWindow("Drawing beams");
 
   // Tell GLUT that whenever the main window needs to be repainted that it
@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
   srand(time(NULL));
 
   Bridge* bridge = new Bridge();
-  bridge->generateBridge(100, .2);
+  bridge->generateBridge(100, .5);
 
   drawBridge(bridge);
 

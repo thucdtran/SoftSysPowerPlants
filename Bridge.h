@@ -46,6 +46,23 @@ void Bridge::generateBridge(int n, double k) {
 	}
 }
 
+void Bridge::calculateForce() {
+	for (Point* p : points) {
+		double Fx = 0.0;
+		double Fy = 0.0;
+		for (Beams* beam : point_to_beams[p]) {
+			if (p != beam->p1) {
+				double dist = distanceBetweenPoints(beam->p1, beam->p2);
+				pair<double, double> unit_vector = make_pair((beam->p1->x - beam->p2->x) / dist, (beam->p1->y - beam->p2->y)/ dist);
+				
+				double F = beam->k * (beam->r - dist);
+				Fx += F * unit_vector.first;
+				Fy += F * unit_vector.second;
+			}
+		}
+	}
+}
+
 double Bridge::distanceBetweenPoints(Point* p1, Point* p2) {
 	return pow(pow((p1->x - p2->x), 2) + pow(p1->y - p2->y, 2), 0.5); 
 }
