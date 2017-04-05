@@ -42,18 +42,27 @@ int main(int argc, char** argv) {
   glClear(GL_COLOR_BUFFER_BIT);
 
   // Window stretches from (-1,1) in the x-axis and y-axis.
+
+  srand();
+
+  Bridge* bridge = new Bridge();
+  bridge->generateBridge(10, 1);
+
+  /*
   Point* p1 = new Point(0.2, 0.3);
   Point* p2 = new Point(-0.4, 0.14);
   Point* p3 = new Point(0, 0);
   Beam* b1 = new Beam(p1, p2);
   Beam* b2 = new Beam(p1, p3);
 
-  map<Point*, vector<Beam*> > point_to_beam();
+  map<Point*, vector<Beam*> > pb;
 
-  //point_to_beam.insert(pair<Point*, vector<Beam*> >(0));
+  pb[p1].push_back(b1);
+  pb[p1].push_back(b2);
+  pb[p2].push_back(b1);
+  pb[p3].push_back(b1);
+  pb[p3].push_back(b2);*/
 
-  //cpoint_to_beam[p1][0];//.push_back(b1);
-  //point_to_beam[p2].push_back(b2);
 
 
   drawLine(b1);
