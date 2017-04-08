@@ -14,6 +14,9 @@ class Bridge {
 		Bridge(); // constructor
 		Bridge(Bridge* a, Bridge* b, double k);
 		void generateBridge(int n, double k);
+		void mutateBridge(double mutation_rate);
+		void stripBridge();
+		double getCost();
 		set<Point*> getPoints();
 		set<Beam*> getBeams();
 
@@ -34,7 +37,7 @@ Bridge::Bridge(Bridge* a, Bridge* b, double k)
 	//Dependant on the the number of points in the smaller bridge. 
 	int set_size = a->points.size()>b->points.size() ? b->points.size() : 
 													   a->points.size();
-	int kept_points = ((double) rand()/RAND_MAX) * set_size;
+	int kept_points = ((double) rand()/RAND_MAX) * set_size+1;
 
 	set<Point*>::iterator it = a->points.begin();
 
@@ -73,6 +76,7 @@ Bridge::Bridge(Bridge* a, Bridge* b, double k)
 }
 
 
+
 void Bridge::generateBridge(int n, double k) {
 	// Generates n points
 	for (int i = 0; i < n; i++) {
@@ -94,6 +98,61 @@ void Bridge::generateBridge(int n, double k) {
 			}
 		}
 	}
+}
+
+void Bridge::mutateBridge(double mutation_rate = .25){
+	//Randomly changes the position of some set of points in the bridge
+	int mutated_points = mutation_rate*points.size();
+	for(int x = 0; x<mutated_points; x++)
+	{
+		set<Point*>::iterator it = points.begin();
+		advance(it, rand()%points.size());
+		//Tries to mutate the x and y position of a random point by up 
+		//to 50%, limited to +-1 in order to stay on screen
+		double new_x = (*it)->x*(((double) rand()/RAND_MAX-.5)+1);
+		double new_y = (*it)->y*(((double) rand()/RAND_MAX-.5)+1);
+		if(new_x>1)
+			new_x = 1;
+		if(new_x<-1)
+			new_x = -1;
+		if(new_y>1)
+			new_y = 1;
+		if(new_y<-1)
+			new_y = -1;
+
+		(*it)->x = new_x;
+		(*it)->y = new_y;
+	}
+
+
+}
+
+void Bridge::stripBridge()
+{
+
+	set<Point*>::iterator it;
+	//Skipping first and last point. 
+	set<Point*>::iterator end = points.end();
+	--end;
+	it = points.begin();
+	advance(it, 1);
+
+	//Delete any singular points. 
+	for(it ;it!=end; ++it){
+		if(point_to_beams.count(*it)==0)
+		{
+			points.erase(it);
+		}
+	}
+
+	cout<<points.size()<<endl;
+
+}
+
+
+double Bridge::getCost()
+{
+	return 0;
 }
 
 void Bridge::calculateForce() {
@@ -125,6 +184,9 @@ set<Point*> Bridge::getPoints() {
 set<Beam*> Bridge::getBeams() {
 	return beams;
 }
+
+
+
 
 
 #endif
