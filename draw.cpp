@@ -13,7 +13,6 @@
 #include <map>
 #include <string>
 #include "Bridge.h"
-#include "Generation.h"
 
 #ifdef __APPLE_CC__
 #include <GLUT/glut.h>
@@ -50,30 +49,13 @@ int main(int argc, char** argv) {
 
   srand(time(NULL));
 
-  Bridge* bridgea = new Bridge();
-  Bridge* bridgeb = new Bridge();
-  bridgea->generateBridge(10, .5);
-  bridgeb->generateBridge(10, .5);
+  Bridge* bridge = new Bridge();
+  bridge->generateBridge(100, .5);
 
-  Bridge* bridgec = new Bridge(bridgea, bridgeb,.5);
-  drawBridge(bridgea);
-  glutSwapBuffers();
-  int x;
-  cin>>x;
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glutSwapBuffers();
-  drawBridge(bridgeb);
-  glutSwapBuffers();
-
-  cin>>x;
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glutSwapBuffers();
-  drawBridge(bridgec);
-  glutSwapBuffers();
-  
+  drawBridge(bridge);
 
 
-
+  glutSwapBuffers();
   glutMainLoop();
 }
 
