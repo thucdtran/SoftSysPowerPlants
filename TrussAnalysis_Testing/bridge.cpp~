@@ -1,0 +1,34 @@
+
+#include <iostream>
+
+
+
+
+
+/* Armadillo testing stuff
+#include <iostream>
+#include <armadillo>
+
+using namespace std;
+using namespace arma;
+
+int main()
+  {
+mat B;
+B << 0 << 0 << endr
+  << 1 << 0 << endr
+  << 2 << 0 << endr
+  << 3 << 0 << endr
+  << 1 << .75 << endr
+  << 2 << .75 << endr;
+cout<<B<<endl;
+
+//zeros(2*sizeof(rows of points),number of forces)
+//for(point in B){
+
+//}
+//g++ -std=c++11 bridge.cpp -o bridge -larmadillo && ./bridge
+//cout<<bla<<endl;
+  return 0;
+  }
+*/
