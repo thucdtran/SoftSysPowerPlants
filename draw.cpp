@@ -13,6 +13,7 @@
 #include <map>
 #include <string>
 #include "Bridge.h"
+#include "Generation.h"
 
 #ifdef __APPLE_CC__
 #include <GLUT/glut.h>
@@ -38,7 +39,7 @@ int main(int argc, char** argv) {
 
   // Position window at (80,80)-(480,380) and give it a title.
   glutInitWindowPosition(80, 80);
-  glutInitWindowSize(400, 300);
+  glutInitWindowSize(800, 600);
   glutCreateWindow("Drawing beams");
 
   // Tell GLUT that whenever the main window needs to be repainted that it
@@ -49,13 +50,30 @@ int main(int argc, char** argv) {
 
   srand(time(NULL));
 
-  Bridge* bridge = new Bridge();
-  bridge->generateBridge(10000, .2);
+  Bridge* bridgea = new Bridge();
+  Bridge* bridgeb = new Bridge();
+  bridgea->generateBridge(10, .5);
+  bridgeb->generateBridge(10, .5);
 
-  drawBridge(bridge);
-
-
+  Bridge* bridgec = new Bridge(bridgea, bridgeb,.5);
+  drawBridge(bridgea);
   glutSwapBuffers();
+  int x;
+  cin>>x;
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glutSwapBuffers();
+  drawBridge(bridgeb);
+  glutSwapBuffers();
+
+  cin>>x;
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glutSwapBuffers();
+  drawBridge(bridgec);
+  glutSwapBuffers();
+  
+
+
+
   glutMainLoop();
 }
 
