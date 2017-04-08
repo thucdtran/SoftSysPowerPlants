@@ -16,13 +16,14 @@ class Bridge {
 		void generateBridge(int n, double k);
 		void mutateBridge(double mutation_rate);
 		void stripBridge();
+		
+		void calculateForce();
 		double getCost();
 		set<Point*> getPoints();
 		set<Beam*> getBeams();
 
 	private:
 		double distanceBetweenPoints(Point* p1, Point* p2);
-		void calculateForce();
 		set<Point*> points;
 		set<Beam*> beams;
 		map<Point*, set<Beam*> > point_to_beams;

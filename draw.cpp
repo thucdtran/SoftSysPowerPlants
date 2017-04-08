@@ -50,22 +50,12 @@ int main(int argc, char** argv) {
   srand(time(NULL));
 
   Bridge* bridge = new Bridge();
-  bridge->generateBridge(20, .25);
-  bridge->stripBridge();
-  bridge->stripBridge();
+  bridge->generateBridge(3, 1);
+  bridge->calculateForce();
   drawBridge(bridge);
+
+
   glutSwapBuffers();
-  int x = 0;
-  cin>>x;
-
-  bridge->mutateBridge();
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  drawBridge(bridge);
-  glutSwapBuffers();
-
-  x= 0 ;
-  cin>>x;
-
   glutMainLoop();
 }
 
