@@ -157,19 +157,34 @@ double Bridge::getCost()
 }
 
 void Bridge::calculateForce() {
+	vector<tuple<double, double>> Forces(points.size());
+
+	
+
 	for (Point* p : points) {
+
 		double Fx = 0.0;
 		double Fy = 0.0;
+		Point* p_other;
 		for (Beam* beam : point_to_beams[p]) {
-			if (p != beam->p1) {
-				double dist = distanceBetweenPoints(beam->p1, beam->p2);
-				pair<double, double> unit_vector = make_pair((beam->p1->x - beam->p2->x) / dist, (beam->p1->y - beam->p2->y)/ dist);
-				
-				double F = beam->k * (beam->r - dist);
-				Fx += F * unit_vector.first;
-				Fy += F * unit_vector.second;
+			if (p != beam->p1){
+				p_other = beam->p1;
+			}else{
+				p_other = beam->p2;
 			}
+
+			double dist = distanceBetweenPoints(p, p_other);
+			pair<double, double> unit_vector = make_pair((p->x - p_other->x) / dist, (p->y - p_other->y)/ dist);
+			
+			double F = beam->k * (beam->r - dist);
+			Fx += F * unit_vector.first;
+			Fy += F * unit_vector.second;
+
+			
 		}
+
+		cout<<Fx<<", "<<Fy<<endl;
+
 	}
 }
 
