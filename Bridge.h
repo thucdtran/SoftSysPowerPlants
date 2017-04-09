@@ -35,7 +35,7 @@ Bridge::Bridge() {
 	// Default constructor
 }
 
-Bridge::Bridge(Bridge* a, Bridge* b, double k)
+Bridge::Bridge(Bridge* a, Bridge* b, double r)
 {	//Finds the number of points we want to keep from a bridge. 
 	//Dependant on the the number of points in the smaller bridge. 
 	int set_size = a->points.size()>b->points.size() ? b->points.size() : 
@@ -64,8 +64,8 @@ Bridge::Bridge(Bridge* a, Bridge* b, double k)
 	for (Point* p1 : points) {
 		for (Point* p2 : points) {
 			if (p1 == p2) continue;
-			if (distanceBetweenPoints(p1, p2) < k) {
-				Beam* beam = new Beam(p1, p2);
+			if (distanceBetweenPoints(p1, p2) < r) {
+				Beam* beam = new Beam(p1, p2, r);
 				beams.insert(beam);
 				// Add to map
 				point_to_beams[p1].insert(beam);
@@ -82,6 +82,8 @@ Bridge::Bridge(Bridge* a, Bridge* b, double k)
 
 void Bridge::generateBridge(int n, double k) {
 	// Generates n points
+	points.insert(new Point(0, 0.5, true));
+	points.insert(new Point(1, 0.5, true));
 	for (int i = 0; i < n; i++) {
 		double x = ((double) rand() / (RAND_MAX)); // 0 to 1
 		double y = ((double) rand() / (RAND_MAX)); // 0 to 1
@@ -92,8 +94,9 @@ void Bridge::generateBridge(int n, double k) {
 	for (Point* p1 : points) {
 		for (Point* p2 : points) {
 			if (p1 == p2) continue;
-			if (distanceBetweenPoints(p1, p2) < k) {
-				Beam* beam = new Beam(p1, p2);
+			double dist = distanceBetweenPoints(p1, p2);
+			if (dist < k) {
+				Beam* beam = new Beam(p1, p2, dist);
 				beams.insert(beam);
 				// Add to map
 				point_to_beams[p1].insert(beam);
@@ -132,8 +135,14 @@ void Bridge::mutateBridge(double mutation_rate = .25){
 
 void Bridge::stripBridge()
 {
-
-	set<Point*>::iterator it;
+	for (Point* p : points) {
+		if (p->fixed) {
+		}
+		if (!p->fixed && point_to_beams[p].empty()) {
+			points.erase(p);
+		}
+	}
+	/*set<Point*>::iterator it;
 	//Skipping first and last point. 
 	set<Point*>::iterator end = points.end();
 	--end;
@@ -142,14 +151,14 @@ void Bridge::stripBridge()
 
 	//Delete any singular points. 
 	for(it ;it!=end; ++it){
-		if(point_to_beams.count(*it)==0)
+		if(it->fixed && point_to_beams.count(*it)==0)
 		{
 			points.erase(it);
 		}
 	}
-
-	remove_smaller_graphs();
-	remove_smaller_graphs();
+	*/
+	//remove_smaller_graphs();
+	//remove_smaller_graphs();
 	
 }
 
@@ -236,9 +245,15 @@ double Bridge::getCost()
 void Bridge::calculateForce() {
 	vector<pair<double, double>> New_Points(points.size());
 
+
 	int i = 0;
 
+	// Apply some force at the top
+
+
 	for (Point* p : points) {
+		if (p->fixed) 
+			continue;
 
 		double Fx = 0.0;
 		double Fy = 0.0;
@@ -251,26 +266,36 @@ void Bridge::calculateForce() {
 		}
 
 		Point* p_other;
+		//cout << "Origin point " << p->x << ", " << p->y << endl;
+		int i =0;
 		for (Beam* beam : point_to_beams[p]) {
+			//cout << "Beam " << i << endl;
+			i++;
 			if (p != beam->p1){
 				p_other = beam->p1;
 			}else{
 				p_other = beam->p2;
 			}
-
+			//cout << p_other->x << ", " << p_other->y << endl;
 			double dist = distanceBetweenPoints(p, p_other);
+			//cout << "Distance " << dist << endl;
 			pair<double, double> unit_vector = make_pair((p->x - p_other->x) / dist, (p->y - p_other->y)/ dist);
 			
 			double F = beam->k * (beam->r - dist);
 			Fx += F * unit_vector.first;
 			Fy += F * unit_vector.second;
-
-			
+			Fy -= p->mass * 9.8; // gravity
 		}
+
 
 		cout<<Fx<<", "<<Fy<<endl;
 		New_Points[i].first = p->x + Fx/1000;
 		New_Points[i].second = p->y + Fy/1000;
+
+
+		//cout<<Fx<<", "<<Fy<<endl;
+		p->x += Fx / p->mass / 10000;
+		p->y += Fy / p->mass / 10000;
 
 
 		i++;
