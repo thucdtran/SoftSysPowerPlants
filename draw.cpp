@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
   Bridge* bridge = new Bridge();
   bridge->generateBridge(100, .1);
   bridge->stripBridge();
-//  bridge->calculateForce();
+  bridge->calculateForce();
   drawBridge(bridge);
 
 

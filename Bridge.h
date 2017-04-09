@@ -234,14 +234,22 @@ double Bridge::getCost()
 }
 
 void Bridge::calculateForce() {
-	vector<tuple<double, double>> Forces(points.size());
+	vector<pair<double, double>> New_Points(points.size());
 
-	
+	int i = 0;
 
 	for (Point* p : points) {
 
 		double Fx = 0.0;
 		double Fy = 0.0;
+
+		double Mx = 0.0; //How far the point will move
+		double My = 0.0; //based on gradient descent
+
+		if (i == 1){
+			Fy = -100;
+		}
+
 		Point* p_other;
 		for (Beam* beam : point_to_beams[p]) {
 			if (p != beam->p1){
@@ -261,7 +269,11 @@ void Bridge::calculateForce() {
 		}
 
 		cout<<Fx<<", "<<Fy<<endl;
+		New_Points[i].first = p->x + Fx/1000;
+		New_Points[i].second = p->y + Fy/1000;
 
+
+		i++;
 	}
 }
 
