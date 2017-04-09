@@ -24,6 +24,8 @@ class Bridge {
 
 	private:
 		double distanceBetweenPoints(Point* p1, Point* p2);
+		void remove_smaller_graphs();
+		void _color_connected(Point* p, int color, map<Point*, int> *point_colors, map<Point*, bool> *visited, map<int, int>*color_count);
 		set<Point*> points;
 		set<Beam*> beams;
 		map<Point*, set<Beam*> > point_to_beams;
@@ -110,19 +112,19 @@ void Bridge::mutateBridge(double mutation_rate = .25){
 		advance(it, rand()%points.size());
 		//Tries to mutate the x and y position of a random point by up 
 		//to 50%, limited to +-1 in order to stay on screen
-		double new_x = (*it)->x*(((double) rand()/RAND_MAX-.5)+1);
-		double new_y = (*it)->y*(((double) rand()/RAND_MAX-.5)+1);
-		if(new_x>1)
-			new_x = 1;
-		if(new_x<-1)
-			new_x = -1;
-		if(new_y>1)
-			new_y = 1;
-		if(new_y<-1)
-			new_y = -1;
+//		double new_x = (*it)->x*(((double) rand()/RAND_MAX-.5)+1);
+//		double new_y = (*it)->y*(((double) rand()/RAND_MAX-.5)+1);
+//		if(new_x>1)
+//			new_x = .8;
+//		if(new_x<-1)
+//			new_x = -.8;
+//		if(new_y>1)
+//			new_y = .8;
+//		if(new_y<-1)
+//			new_y = -.8;
 
-		(*it)->x = new_x;
-		(*it)->y = new_y;
+//		(*it)->x = new_x;
+//		(*it)->y = new_y;
 	}
 
 
@@ -145,10 +147,78 @@ void Bridge::stripBridge()
 			points.erase(it);
 		}
 	}
+	cout<<"Current Size: "<<points.size()<<endl;
+	remove_smaller_graphs();
+	
+}
 
-	cout<<points.size()<<endl;
+
+void Bridge::_color_connected(Point* p, int color, map<Point*, int> *point_colors, map<Point*, bool> *visited, map<int, int> *color_count)
+{
+	(*color_count)[color]++;
+	(*point_colors).insert(pair<Point*, int>(p, color));
+	(*visited).insert(pair<Point*, bool>(p, true));
+	set<Beam*>  connected_beams = point_to_beams[p];
+
+		for (Beam* beam : connected_beams){
+			if((*visited).count(beam->p1)==0)
+				_color_connected(beam->p1, color, point_colors, visited, color_count);
+			if((*visited).count(beam->p2)==0)
+				_color_connected(beam->p2, color, point_colors, visited, color_count);			
+		}
+	
 
 }
+
+void Bridge::remove_smaller_graphs(){
+	map<Point*, int > point_color;
+	map<Point*, bool> visited;
+	map<int, int> color_count;
+
+	set<Point*>::iterator it;	
+	it = points.begin();
+	point_color.insert(pair<Point*, int>(*it, -1));
+	set<Point*>::iterator end = points.end();
+	point_color.insert(pair<Point*, int>(*end, -1));
+//	--end;
+
+	int total_used_colors = 0;
+	for(it; it!=end; ++it)
+	{
+		if(visited.count(*it)==0){
+			total_used_colors++;
+			_color_connected(*it, total_used_colors, &point_color, &visited, &color_count);
+		}
+
+	}
+	map<int, int>::iterator itt;
+	int currKey = 0;
+	int currVal = 0;
+	for (itt=color_count.begin(); itt!=color_count.end(); ++itt){
+		if(itt->second>currVal)
+		{
+			currKey = itt->first;
+			currVal = itt->second;
+		}
+	}
+	
+	it = points.begin();
+	end = points.end();
+
+    for(it; it!=end; it++)
+    {
+    	if(point_color[*it]!=currKey){
+			set<Beam*> beams_to_delete = point_to_beams[*it];
+			set<Beam*>::iterator i = beams_to_delete.begin();
+			for(i; i!=beams_to_delete.end();++i)
+				beams.erase(*i);
+			points.erase(it);
+    	}
+    }
+
+
+}
+
 
 
 double Bridge::getCost()
