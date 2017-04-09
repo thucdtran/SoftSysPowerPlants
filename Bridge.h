@@ -147,7 +147,8 @@ void Bridge::stripBridge()
 			points.erase(it);
 		}
 	}
-	cout<<"Current Size: "<<points.size()<<endl;
+
+	remove_smaller_graphs();
 	remove_smaller_graphs();
 	
 }
@@ -155,11 +156,14 @@ void Bridge::stripBridge()
 
 void Bridge::_color_connected(Point* p, int color, map<Point*, int> *point_colors, map<Point*, bool> *visited, map<int, int> *color_count)
 {
+	//Colors the point as the given color, and increments associated count
 	(*color_count)[color]++;
 	(*point_colors).insert(pair<Point*, int>(p, color));
 	(*visited).insert(pair<Point*, bool>(p, true));
-	set<Beam*>  connected_beams = point_to_beams[p];
 
+	//Check to see if any neighboring nodes exist, and then recursively 
+	//Look at them.
+	set<Beam*>  connected_beams = point_to_beams[p];
 		for (Beam* beam : connected_beams){
 			if((*visited).count(beam->p1)==0)
 				_color_connected(beam->p1, color, point_colors, visited, color_count);
@@ -175,15 +179,15 @@ void Bridge::remove_smaller_graphs(){
 	map<Point*, bool> visited;
 	map<int, int> color_count;
 
+
 	set<Point*>::iterator it;	
 	it = points.begin();
-	point_color.insert(pair<Point*, int>(*it, -1));
+//	point_color.insert(pair<Point*, int>(*it, -1));
 	set<Point*>::iterator end = points.end();
-	point_color.insert(pair<Point*, int>(*end, -1));
-//	--end;
+//	point_color.insert(pair<Point*, int>(*end, -1));
 
 	int total_used_colors = 0;
-	for(it; it!=end; ++it)
+	for(it; it!=end; it++)
 	{
 		if(visited.count(*it)==0){
 			total_used_colors++;
@@ -191,17 +195,19 @@ void Bridge::remove_smaller_graphs(){
 		}
 
 	}
+
 	map<int, int>::iterator itt;
 	int currKey = 0;
 	int currVal = 0;
-	for (itt=color_count.begin(); itt!=color_count.end(); ++itt){
+
+	for (itt=color_count.begin(); itt!=color_count.end(); itt++){
 		if(itt->second>currVal)
 		{
 			currKey = itt->first;
 			currVal = itt->second;
 		}
 	}
-	
+
 	it = points.begin();
 	end = points.end();
 
@@ -210,7 +216,8 @@ void Bridge::remove_smaller_graphs(){
     	if(point_color[*it]!=currKey){
 			set<Beam*> beams_to_delete = point_to_beams[*it];
 			set<Beam*>::iterator i = beams_to_delete.begin();
-			for(i; i!=beams_to_delete.end();++i)
+			set<Beam*>::iterator e = beams_to_delete.end();
+			for(i; i!=e;i++)
 				beams.erase(*i);
 			points.erase(it);
     	}
