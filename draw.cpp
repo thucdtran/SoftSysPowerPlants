@@ -50,13 +50,22 @@ int main(int argc, char** argv) {
   srand(time(NULL));
 
   Bridge* bridge = new Bridge();
-  bridge->generateBridge(100, .1);
+  bridge->generateBridge(1, 1);
   bridge->stripBridge();
-//  bridge->calculateForce();
+  
   drawBridge(bridge);
-
-
   glutSwapBuffers();
+
+  int k = 1;
+  while (k > 0) {
+    cin >> k;
+    cout << "next frame...." << endl;
+    glClear(GL_COLOR_BUFFER_BIT);
+    bridge->calculateForce();
+    drawBridge(bridge);
+    glutSwapBuffers();
+  }
+
   glutMainLoop();
 }
 
@@ -85,7 +94,8 @@ void drawPoint(Point* p) {
   double x = p->x;
   double y = p->y;
   glBegin(GL_POLYGON);
-    glColor3f(0, 1, 0); 
+    if (p->fixed) glColor3f(0, 0, 1);
+    else glColor3f(0, 1, 0); 
     glVertex3f(x - 0.02, y - 0.025, 0);
     glVertex3f(x + 0.02, y - 0.025, 0);
     glVertex3f(x, y + 0.025, 0);
