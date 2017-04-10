@@ -9,6 +9,7 @@ The stretch goals are then to create genetic algorithm to vary bridges based on 
 #### Progress on project related cards
 
 - Create a plotting function using openGL that can plot points on the screen/Create plot function that plots beams between points
+
 ![Drawing](https://github.com/thuctran289/SoftSysPowerPlants/blob/master/reports/Images/draw.png?raw=true)
 
 - Write at least one function in C++: Everyone has contributed to some header/source file and has learned C++ data structures such as classes, maps, vectors, and sets.
@@ -36,7 +37,7 @@ This is an example of a generated bridge (with 50 points). The blue triangles re
 
 We have also started the physics, but this needs more work, both with the equations and the adjustment of parameters. 
 
-![Physics](https://github.com/thuctran289/SoftSysPowerPlants/blob/master/reports/Images/phsyx.png?raw=true)
+![Physics](https://github.com/thuctran289/SoftSysPowerPlants/blob/master/reports/Images/physx.png?raw=true)
 
 Before/After
 
