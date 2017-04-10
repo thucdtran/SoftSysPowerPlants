@@ -36,7 +36,7 @@ This is an example of a generated bridge (with 50 points). The blue triangles re
 
 We have also started the physics, but this needs more work, both with the equations and the adjustment of parameters. 
 
-![Physics](https://github.com/thuctran289/SoftSysPowerPlants/blob/master/reports/Images/draw.png?raw=true)
+![Physics](https://github.com/thuctran289/SoftSysPowerPlants/blob/master/reports/Images/phsyx.png?raw=true)
 
 Before/After
 
