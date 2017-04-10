@@ -55,11 +55,11 @@ We were able to get mouse and keyboard callbacks (in OpenGL) so that we now has 
 
 http://bridgecon.sourceforge.net/: An example of a bridge constructor physics simulation. The website includes graphics that can aid us in creating a GUI for debugging, but no source code is available. 
 
-https://www.scribd.com/doc/20641372/Physics-of-Bridges: Powerpoint detailing physical aspects that we will have to model in our simulation (tension, compression, arches, trusses, etc)...
+https://www.scribd.com/doc/20641372/Physics-of-Bridges: Powerpoint detailing physical aspects that we model in our simulation (tension, compression, arches, trusses, etc)...
 
-https://www.mathworks.com/help/gads/how-the-genetic-algorithm-works.html: Description of how genetic algorithms work using MATLAB. Describes random initialization, fitness (which will be structural integrity for us), mutations, etc. 
+https://www.mathworks.com/help/gads/how-the-genetic-algorithm-works.html: Description of how genetic algorithms work using MATLAB. Describes random initialization, fitness (which are structural integrity for us), mutations, etc. 
 
-https://open.gl/ A tutorial for OpenGL. This will help us get started on how to create the graphical interface to show results of our simulations and generative design. 
+https://open.gl/ A tutorial for OpenGL. This helps us get started on how to create the graphical interface to show results of our simulations and generative design. 
 
 http://www.opengl-tutorial.org/miscellaneous/building-your-own-c-application/ A tutorial for how to use OpenGL in C in particular. 
 
