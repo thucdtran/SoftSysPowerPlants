@@ -8,7 +8,7 @@ The stretch goals are then to create genetic algorithm to vary bridges based on 
 
 #### Progress on project related cards
 Create a plotting function using openGL that can plot points on the screen/Create plot function that plots beams between points
-![Drawing](https://github.com/davpapp/ThinkStats2/blob/master/Reports/Images/drawing.png?raw=true)
+![Drawing](https://github.com/thuctran289/SoftSysPowerPlants/blob/master/reports/Images/draw.png?raw=true)
 
 Write at least one function in C++: Everyone has contributed to some header/source file and has learned C++ data structures such as classes, maps, vectors, and sets.
 
@@ -25,11 +25,11 @@ Experiment with non-terminal user interaction: We investigated the different cal
 
 
 #### Preliminary Results
-![Example](https://github.com/davpapp/ThinkStats2/blob/master/Reports/Images/example.png?raw=true)
+![Example](https://github.com/thuctran289/SoftSysPowerPlants/blob/master/reports/Images/b1.png?raw=true)
 This is an example of a generated bridge (with 50 points). The blue triangles represent fixed pins, the green triangles represent moving points, and the red lines represent beams. No load is being applied.
 
 We have also started the physics, but this needs more work, both with the equations and the adjustment of parameters. 
-![Physics](https://github.com/davpapp/ThinkStats2/blob/master/Reports/Images/physics.png?raw=true)
+![Physics](https://github.com/thuctran289/SoftSysPowerPlants/blob/master/reports/Images/draw.png?raw=true)
 
 Before
 ![Before](https://github.com/davpapp/ThinkStats2/blob/master/Reports/Images/before.png?raw=true)
