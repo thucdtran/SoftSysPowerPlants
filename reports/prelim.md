@@ -26,18 +26,20 @@ Experiment with non-terminal user interaction: We investigated the different cal
 
 #### Preliminary Results
 ![Example](https://github.com/thuctran289/SoftSysPowerPlants/blob/master/reports/Images/b1.png?raw=true)
+
 This is an example of a generated bridge (with 50 points). The blue triangles represent fixed pins, the green triangles represent moving points, and the red lines represent beams. No load is being applied.
 
 We have also started the physics, but this needs more work, both with the equations and the adjustment of parameters. 
+
 ![Physics](https://github.com/thuctran289/SoftSysPowerPlants/blob/master/reports/Images/draw.png?raw=true)
 
-Before
-![Before](https://github.com/davpapp/ThinkStats2/blob/master/Reports/Images/before.png?raw=true)
-After
-![After](https://github.com/davpapp/ThinkStats2/blob/master/Reports/Images/after.png?raw=true)
+Before/After
+![Before](https://github.com/thuctran289/SoftSysPowerPlants/blob/master/reports/Images/prune.png?raw=true)
+
 We have also created a function that will help prune our bridges to get rid of all points and beams that are not associated with the largest connected bridge. 
 
-![Callbacks](https://github.com/davpapp/ThinkStats2/blob/master/Reports/Images/callbacks.png?raw=true)
+![Callbacks](https://github.com/thuctran289/SoftSysPowerPlants/blob/master/reports/Images/callback.png?raw=true)
+
 We were able to get mouse and keyboard callbacks (in OpenGL) so that we now has a non-terminal way of interacting with the program. 
 [Database] 
 
