@@ -7,24 +7,29 @@ We’re close to achieving our MVP of a structure simulator that is able to simu
 The stretch goals are then to create genetic algorithm to vary bridges based on success and failure, and implement dynamic loading.
 
 #### Progress on project related cards
-Create a plotting function using openGL that can plot points on the screen/Create plot function that plots beams between points
+
+- Create a plotting function using openGL that can plot points on the screen/Create plot function that plots beams between points
 ![Drawing](https://github.com/thuctran289/SoftSysPowerPlants/blob/master/reports/Images/draw.png?raw=true)
 
-Write at least one function in C++: Everyone has contributed to some header/source file and has learned C++ data structures such as classes, maps, vectors, and sets.
+- Write at least one function in C++: Everyone has contributed to some header/source file and has learned C++ data structures such as classes, maps, vectors, and sets.
 
-Create a function that takes in a "truss" structure and computes the loading on all of the beams: This is the physics part that we’ve made some progress on. We set some points as fixed, and have calculated the forces on others. We haven’t fine tuned the parameters, so the bridge behaviors erratically at the moment. 
+- Create a function that takes in a "truss" structure and computes the loading on all of the beams: This is the physics part that we’ve made some progress on. We set some points as fixed, and have calculated the forces on others. We haven’t fine tuned the parameters, so the bridge behaviors erratically at the moment. 
 
-Animation: We currently have rudimentary animation, where each frame is rendered when the user presses a new key. This is very helpful for debugging already, but for the final version, we’d like to do an actual animation with a high frame rate.
+- Animation: We currently have rudimentary animation, where each frame is rendered when the user presses a new key. This is very helpful for debugging already, but for the final version, we’d like to do an actual animation with a high frame rate.
 
-Calculating forces on the bridge: https://github.com/thuctran289/SoftSysPowerPlants/blob/master/Bridge.h (void CalculateForce())
+- Calculating forces on the bridge: https://github.com/thuctran289/SoftSysPowerPlants/blob/master/Bridge.h (void CalculateForce())
 
-Implement genetic algorithm: We created a prototype for crossover and mutation, but have not combined them into an evolutionary algorithm. We also do not have a good fitness function yet. https://github.com/thuctran289/SoftSysPowerPlants/blob/master/Bridge.h
-Learn how to use Linear Algebra library: We downloaded and installed Armadillo and got it working, but have not needed to use it yet (and might only need to for gradient descent).
-Implement Bridge Pruning: We created a function that will remove all points and beams that are not the part of the largest bridge. 
-Experiment with non-terminal user interaction: We investigated the different callbacks that openGL has. 
+- Implement genetic algorithm: We created a prototype for crossover and mutation, but have not combined them into an evolutionary algorithm. We also do not have a good fitness function yet. https://github.com/thuctran289/SoftSysPowerPlants/blob/master/Bridge.h
+
+- Learn how to use Linear Algebra library: We downloaded and installed Armadillo and got it working, but have not needed to use it yet (and might only need to for gradient descent).
+
+- Implement Bridge Pruning: We created a function that will remove all points and beams that are not the part of the largest bridge. 
+
+- Experiment with non-terminal user interaction: We investigated the different callbacks that openGL has. 
 
 
 #### Preliminary Results
+
 ![Example](https://github.com/thuctran289/SoftSysPowerPlants/blob/master/reports/Images/b1.png?raw=true)
 
 This is an example of a generated bridge (with 50 points). The blue triangles represent fixed pins, the green triangles represent moving points, and the red lines represent beams. No load is being applied.
@@ -34,6 +39,7 @@ We have also started the physics, but this needs more work, both with the equati
 ![Physics](https://github.com/thuctran289/SoftSysPowerPlants/blob/master/reports/Images/draw.png?raw=true)
 
 Before/After
+
 ![Before](https://github.com/thuctran289/SoftSysPowerPlants/blob/master/reports/Images/prune.png?raw=true)
 
 We have also created a function that will help prune our bridges to get rid of all points and beams that are not associated with the largest connected bridge. 
@@ -41,9 +47,11 @@ We have also created a function that will help prune our bridges to get rid of a
 ![Callbacks](https://github.com/thuctran289/SoftSysPowerPlants/blob/master/reports/Images/callback.png?raw=true)
 
 We were able to get mouse and keyboard callbacks (in OpenGL) so that we now has a non-terminal way of interacting with the program. 
+
 [Database] 
 
 #### Resources
+
 http://bridgecon.sourceforge.net/: An example of a bridge constructor physics simulation. The website includes graphics that can aid us in creating a GUI for debugging, but no source code is available. 
 
 https://www.scribd.com/doc/20641372/Physics-of-Bridges: Powerpoint detailing physical aspects that we will have to model in our simulation (tension, compression, arches, trusses, etc)...
