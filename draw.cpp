@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
   srand(time(NULL));
 
   Bridge* bridge = new Bridge();
-  bridge->generateBridge(125, .2);
+  bridge->generateBridge(100, .25,10);
   bridge->stripBridge();
 
   //bridge->calculateForce();
@@ -93,6 +93,9 @@ void drawBridge(Bridge* bridge) {
 
 void drawBeam(Beam* beam) {
   glBegin(GL_LINES);
+  if(beam->beamType == 1) 
+    glColor3f(0,1,0);
+  else  
     glColor3f(1, 0, 0);
     glVertex2f(beam->p1->x, beam->p1->y);
     glVertex2f(beam->p2->x, beam->p2->y);
@@ -104,6 +107,7 @@ void drawPoint(Point* p) {
   double y = p->y;
   glBegin(GL_POLYGON);
     if (p->fixed) glColor3f(0, 0, 1);
+    else if (p->road) glColor3f(0,1,1);
     else glColor3f(0, 1, 0); 
     glVertex3f(x - 0.02, y - 0.025, 0);
     glVertex3f(x + 0.02, y - 0.025, 0);
