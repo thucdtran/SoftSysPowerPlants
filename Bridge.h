@@ -272,19 +272,13 @@ void Bridge::calculateForce() {
 		}
 
 		Point* p_other;
-		//cout << "Origin point " << p->x << ", " << p->y << endl;
-		int i =0;
 		for (Beam* beam : point_to_beams[p]) {
-			//cout << "Beam " << i << endl;
-			i++;
 			if (p != beam->p1){
 				p_other = beam->p1;
 			}else{
 				p_other = beam->p2;
 			}
-			//cout << p_other->x << ", " << p_other->y << endl;
 			double dist = distanceBetweenPoints(p, p_other);
-			//cout << "Distance " << dist << endl;
 			pair<double, double> unit_vector = make_pair((p->x - p_other->x) / dist, (p->y - p_other->y)/ dist);
 			
 			double F = beam->k * (beam->r - dist);
