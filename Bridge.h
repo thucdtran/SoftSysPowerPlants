@@ -252,6 +252,9 @@ bool Bridge::calculateForce() {
 			double dist = distanceBetweenPoints(p, p_other);
 			pair<double, double> unit_vector = make_pair((p->x - p_other->x) / dist, (p->y - p_other->y)/ dist);
 			
+			if (beam->fail(dist)) {
+				cout << "Beam failed!" << endl;
+			}
 			double F = beam->k * (beam->r - dist);
 			Fx += F * unit_vector.first;
 			Fy += F * unit_vector.second;
@@ -266,7 +269,7 @@ bool Bridge::calculateForce() {
 		double dy = Fy / p->mass / 100000.0;
 		p->x += dx;
 		p->y += dy;
-		if (abs(dx) > 0.0000001 || abs(dy) > 0.0000001) {
+		if (abs(dx) > 0.000001 || abs(dy) > 0.000001) {
 			converged = false;
 		}
 	}

@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
 
   Bridge* bridge = new Bridge();
 
-  bridge->generateBridge(10, 2.0);
+  bridge->generateBridge(100, .5);
   bridge->stripBridge();
 
   //bridge->calculateForce();
@@ -94,7 +94,11 @@ void drawBridge(Bridge* bridge) {
 
 void drawBeam(Beam* beam) {
   glBegin(GL_LINES);
-    glColor3f(1, 0, 0);
+    double color = beam->getColor();
+    if (color < 0) 
+      glColor3f(1, 1, 0);
+    else 
+      glColor3f(color, 0, 0);
     glVertex2f(beam->p1->x, beam->p1->y);
     glVertex2f(beam->p2->x, beam->p2->y);
   glEnd();
