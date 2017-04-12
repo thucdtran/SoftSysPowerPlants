@@ -18,6 +18,7 @@ class Bridge {
 		void stripBridge();
 		
 		bool calculateForce();
+		double calculateFitness();
 		double getCost();
 		set<Point*> getPoints();
 		set<Beam*> getBeams();
@@ -277,10 +278,19 @@ bool Bridge::calculateForce() {
 	return converged;
 }
 
+// Returns the average stress on the beams. Use to evaluate fitness of a bridge.
+double Bridge::calculateFitness() {
+	double avg_stress = 0.0;
+	for (Beam* beam : beams) {
+		avg_stress += beam->getStress();
+	}
+	double score = avg_stress / beams.size();
+	cout << score << " w/ " << beams.size() << " beams." << endl;
+}
+
 double Bridge::distanceBetweenPoints(Point* p1, Point* p2) {
 	return pow(pow((p1->x - p2->x), 2) + pow(p1->y - p2->y, 2), 0.5); 
 }
-
 
 set<Point*> Bridge::getPoints() {
 	return points;

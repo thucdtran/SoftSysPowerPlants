@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
 
   Bridge* bridge = new Bridge();
 
-  bridge->generateBridge(100, .5);
+  bridge->generateBridge(7, 1);
   bridge->stripBridge();
 
   //bridge->calculateForce();
@@ -74,6 +74,7 @@ int main(int argc, char** argv) {
     drawBridge(bridge);
     glutSwapBuffers();
   }
+  bridge->calculateFitness();
   cout << "Animation done, convergence found..." << endl;
 
   glutMainLoop();
@@ -94,7 +95,7 @@ void drawBridge(Bridge* bridge) {
 
 void drawBeam(Beam* beam) {
   glBegin(GL_LINES);
-    double color = beam->getColor();
+    double color = beam->getStress();
     if (color < 0) 
       glColor3f(1, 1, 0);
     else 
