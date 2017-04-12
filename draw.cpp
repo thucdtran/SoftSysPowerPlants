@@ -53,7 +53,9 @@ int main(int argc, char** argv) {
   srand(time(NULL));
 
   Bridge* bridge = new Bridge();
-  bridge->generateBridge(125, .2);
+  //bridge->generateBridge(10, .25,0);
+
+  bridge->generateBridge(7, 1);
   bridge->stripBridge();
   
 
@@ -63,19 +65,36 @@ int main(int argc, char** argv) {
   drawBridge(bridge);
   glutSwapBuffers();
 
-  // int k = 1;
-  // while (k > 0) {
-  //   sleep_for(nanoseconds(5000000));
-  //   //cin >> k;
-  //   //cout << "next frame...." << endl;
-  //   for (int i = 0; i < 5; i++) {
-  //     bridge->calculateForce();
-  //   }
-  //   //usleep(300);
-  //   glClear(GL_COLOR_BUFFER_BIT);
-  //   drawBridge(bridge);
-  //   glutSwapBuffers();
-  // }
+
+  int k = 1;
+  while (k > 0) {
+    sleep_for(nanoseconds(5000000));
+    //cin >> k;
+    //cout << "next frame...." << endl;
+    for (int i = 0; i < 5; i++) {
+      bridge->calculateForce();
+    }
+    //usleep(300);
+    glClear(GL_COLOR_BUFFER_BIT);
+    drawBridge(bridge);
+    glutSwapBuffers();
+  }
+
+  bool converged = false;
+  while (!converged) {
+    sleep_for(nanoseconds(500000));
+    //cout << "next frame...." << endl;
+    for (int i = 0; i < 5; i++) {
+      converged = bridge->calculateForce();
+    }
+    //usleep(300);
+    glClear(GL_COLOR_BUFFER_BIT);
+    drawBridge(bridge);
+    glutSwapBuffers();
+  }
+  bridge->calculateFitness();
+  cout << "Animation done, convergence found..." << endl;
+
 
   glutMainLoop();
 }
@@ -95,7 +114,14 @@ void drawBridge(Bridge* bridge) {
 
 void drawBeam(Beam* beam) {
   glBegin(GL_LINES);
-    glColor3f(1, 0, 0);
+    double color = beam->getStress();
+    if (color < 0) 
+      glColor3f(1, 1, 0);
+    else 
+      glColor3f(color, 0, 0);
+  /*if(beam->beamType == 1) 
+    glColor3f(0,1,0);*/
+
     glVertex2f(beam->p1->x, beam->p1->y);
     glVertex2f(beam->p2->x, beam->p2->y);
   glEnd();
@@ -106,6 +132,7 @@ void drawPoint(Point* p) {
   double y = p->y;
   glBegin(GL_POLYGON);
     if (p->fixed) glColor3f(0, 0, 1);
+    else if (p->road) glColor3f(0,1,1);
     else glColor3f(0, 1, 0); 
     glVertex3f(x - 0.02, y - 0.025, 0);
     glVertex3f(x + 0.02, y - 0.025, 0);

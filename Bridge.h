@@ -15,12 +15,18 @@ class Bridge {
 		Bridge(); // constructor
 		Bridge(Bridge* a, Bridge* b, double k);
 		void generateBridge(int n, double k);
+		void generateBridge(int n, double k, int roadPoints);
 		void mutateBridge(double mutation_rate);
 		void stripBridge();
 		
+
 		void calculateForce();
 		void calculateForceMatrix();
 		pair<double, double> distributeLoad(Beam b, pair<double, double> Force, Point forcePoint);
+
+		bool calculateForce();
+		double calculateFitness();
+
 		double getCost();
 		set<Point*> getPoints();
 		set<Beam*> getBeams();
@@ -87,6 +93,9 @@ void Bridge::generateBridge(int n, double k) {
 	// Generates n points
 	points.insert(new Point(-1, 0.5, true));
 	points.insert(new Point(1, 0.5, true));
+
+
+
 	for (int i = 0; i < n; i++) {
 		double x = 2*((double) rand() / (RAND_MAX))-1; // 0 to 1
 		double y = 2*((double) rand() / (RAND_MAX))-1; // 0 to 1
@@ -107,6 +116,66 @@ void Bridge::generateBridge(int n, double k) {
 				// Add to map
 				point_to_beams[p1].insert(beam);
 				point_to_beams[p2].insert(beam);
+			}
+			p2_count++;
+		}
+		p1_count++;
+	}
+}
+
+void Bridge::generateBridge(int n, double k, int roadPoints) {
+	// Generates n points
+	Point* firstPoint =new Point(-1, 0.5, true);
+	Point* lastPoint = new Point(1, 0.5, true) ;
+	points.insert(firstPoint);
+	points.insert(lastPoint);
+	double fixedX1 = -1;
+	double fixedY1 = .5;
+	double fixedX2 = 1;
+	double fixedY2 = .5;
+
+	double distance = distanceBetweenPoints(firstPoint, lastPoint);
+
+	roadPoints = distance/k+2;
+
+	for(int i = 1; i<roadPoints; i++)
+	{
+		double new_x = ((fixedX2-fixedX1)/roadPoints*i + fixedX1);
+		double new_y = ((fixedY2-fixedY1)/roadPoints*i + fixedY1);
+		points.insert(new Point(new_x, new_y, false, true));
+	}
+
+
+	for (int i = 0; i < n; i++) {
+		double x = 2*((double) rand() / (RAND_MAX))-1; // 0 to 1
+		double y = 2*((double) rand() / (RAND_MAX))-1; // 0 to 1
+		points.insert(new Point(x, y));
+	}
+
+	
+	int p1_count = 0;
+	for (Point* p1 : points) {
+		int p2_count = 0;
+		for (Point* p2 : points) {
+			if (p2 <= p1) 
+				continue;
+			double dist = distanceBetweenPoints(p1, p2);
+			if (dist < k) {
+				if(((p1->fixed||p2->fixed)&&(p1->road||p2->road))||(p1->road &&p2->road)){
+					Beam* beam = new Beam(p1, p2, dist, 1);
+					beams.insert(beam);
+					// Add to map
+					point_to_beams[p1].insert(beam);
+					point_to_beams[p2].insert(beam);
+				}
+				else{
+					Beam* beam = new Beam(p1, p2, dist);
+					beams.insert(beam);
+					// Add to map
+					point_to_beams[p1].insert(beam);
+					point_to_beams[p2].insert(beam);
+				}
+
 			}
 			p2_count++;
 		}
@@ -153,7 +222,6 @@ void Bridge::stripBridge()
 	set<Point*>::iterator it;
 	remove_smaller_graphs();
 	remove_smaller_graphs();
-	
 }
 
 
@@ -233,12 +301,17 @@ double Bridge::getCost()
 	return 0;
 }
 
+<<<<<<< HEAD
 void Bridge::calculateForce() {
 	//vector<pair<double, double>> New_Points(points.size());
 
 	int i = 0;
 
 	// Apply some force at the top
+
+
+bool Bridge::calculateForce() {
+	bool converged = true;
 
 	for (Point* p : points) {
 		if (p->fixed) 
@@ -250,10 +323,6 @@ void Bridge::calculateForce() {
 		double Mx = 0.0; //How far the point will move
 		double My = 0.0; //based on gradient descent
 
-		// Apply force on first point
-		if (i == 1){
-			Fy = -100;
-		}
 
 		Point* p_other;
 		for (Beam* beam : point_to_beams[p]) {
@@ -265,6 +334,9 @@ void Bridge::calculateForce() {
 			double dist = distanceBetweenPoints(p, p_other);
 			pair<double, double> unit_vector = make_pair((p->x - p_other->x) / dist, (p->y - p_other->y)/ dist);
 			
+			if (beam->fail(dist)) {
+				cout << "Beam failed!" << endl;
+			}
 			double F = beam->k * (beam->r - dist);
 			Fx += F * unit_vector.first;
 			Fy += F * unit_vector.second;
@@ -272,17 +344,29 @@ void Bridge::calculateForce() {
 		}
 
 
-		cout<<Fx<<", "<<Fy<<endl;
-		//New_Points[i].first = p->x + Fx/100;
-		//New_Points[i].second = p->y + Fy/1000;
-
+		//cout<<Fx<<", "<<Fy<<endl;
 
 		//cout<<Fx<<", "<<Fy<<endl;
-		p->x += Fx / p->mass / 100000;
-		p->y += Fy / p->mass / 100000;
-		//cout << Fx / p->mass / 1000 << ", " << Fy / p->mass / 1000 << endl;
-		i++;
+		double dx = Fx / p->mass / 100000.0;
+		double dy = Fy / p->mass / 100000.0;
+		p->x += dx;
+		p->y += dy;
+		if (abs(dx) > 0.000001 || abs(dy) > 0.000001) {
+			converged = false;
+		}
 	}
+	//cout << "Converged: " << converged << endl;
+	return converged;
+}
+
+// Returns the average stress on the beams. Use to evaluate fitness of a bridge.
+double Bridge::calculateFitness() {
+	double avg_stress = 0.0;
+	for (Beam* beam : beams) {
+		avg_stress += beam->getStress();
+	}
+	double score = avg_stress / beams.size();
+	cout << "Fitness score: " << score << " w/ " << beams.size() << " beams." << endl;
 }
 
 pair<double, double> Bridge::distributeLoad(Beam b, pair<double, double> Force, Point forcePoint) {
@@ -303,7 +387,6 @@ void Bridge::calculateForceMatrix() {
 double Bridge::distanceBetweenPoints(Point* p1, Point* p2) {
 	return pow(pow((p1->x - p2->x), 2) + pow(p1->y - p2->y, 2), 0.5); 
 }
-
 
 set<Point*> Bridge::getPoints() {
 	return points;
