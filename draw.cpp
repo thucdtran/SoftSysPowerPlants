@@ -13,6 +13,8 @@
 #include <map>
 #include <string>
 #include "Generation.h"
+#include <chrono>
+#include <thread>
 
 #ifdef __APPLE_CC__
 #include <GLUT/glut.h>
@@ -25,7 +27,8 @@ void drawBeam(Beam* beam);
 void drawPoint(Point* p);
 
 using namespace std;
-
+using namespace std::this_thread; // For sleep
+using namespace std::chrono;  // For sleep
 
 // Initializes GLUT, the display mode, and main window; registers callbacks;
 // enters the main event loop.
@@ -50,12 +53,29 @@ int main(int argc, char** argv) {
   srand(time(NULL));
 
   Bridge* bridge = new Bridge();
-  bridge->generateBridge(3, 1);
-  bridge->calculateForce();
+  bridge->generateBridge(100, .25,10);
+
+  bridge->stripBridge();
+
+  //bridge->calculateForce();
+
   drawBridge(bridge);
-
-
   glutSwapBuffers();
+
+  bool converged = false;
+  while (!converged) {
+    sleep_for(nanoseconds(500000));
+    //cout << "next frame...." << endl;
+    for (int i = 0; i < 5; i++) {
+      converged = bridge->calculateForce();
+    }
+    //usleep(300);
+    glClear(GL_COLOR_BUFFER_BIT);
+    drawBridge(bridge);
+    glutSwapBuffers();
+  }
+  cout << "Animation done, convergence found..." << endl;
+
   glutMainLoop();
 }
 
@@ -74,6 +94,9 @@ void drawBridge(Bridge* bridge) {
 
 void drawBeam(Beam* beam) {
   glBegin(GL_LINES);
+  if(beam->beamType == 1) 
+    glColor3f(0,1,0);
+  else  
     glColor3f(1, 0, 0);
     glVertex2f(beam->p1->x, beam->p1->y);
     glVertex2f(beam->p2->x, beam->p2->y);
@@ -84,7 +107,9 @@ void drawPoint(Point* p) {
   double x = p->x;
   double y = p->y;
   glBegin(GL_POLYGON);
-    glColor3f(0, 1, 0); 
+    if (p->fixed) glColor3f(0, 0, 1);
+    else if (p->road) glColor3f(0,1,1);
+    else glColor3f(0, 1, 0); 
     glVertex3f(x - 0.02, y - 0.025, 0);
     glVertex3f(x + 0.02, y - 0.025, 0);
     glVertex3f(x, y + 0.025, 0);
