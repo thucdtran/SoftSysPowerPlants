@@ -53,7 +53,8 @@ int main(int argc, char** argv) {
   srand(time(NULL));
 
   Bridge* bridge = new Bridge();
-  bridge->generateBridge(50, .2);
+
+  bridge->generateBridge(10, 2.0);
   bridge->stripBridge();
 
   //bridge->calculateForce();

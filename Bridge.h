@@ -82,11 +82,11 @@ Bridge::Bridge(Bridge* a, Bridge* b, double r)
 
 void Bridge::generateBridge(int n, double k) {
 	// Generates n points
-	points.insert(new Point(0, 0.5, true));
+	points.insert(new Point(-1, 0.5, true));
 	points.insert(new Point(1, 0.5, true));
 	for (int i = 0; i < n; i++) {
-		double x = ((double) rand() / (RAND_MAX)); // 0 to 1
-		double y = ((double) rand() / (RAND_MAX)); // 0 to 1
+		double x = 2*((double) rand() / (RAND_MAX))-1; // 0 to 1
+		double y = 2*((double) rand() / (RAND_MAX))-1; // 0 to 1
 		points.insert(new Point(x, y));
 	}
 
@@ -147,24 +147,9 @@ void Bridge::stripBridge()
 			points.erase(p);
 		}
 	}
-	/*set<Point*>::iterator it;
-	//Skipping first and last point. 
-	set<Point*>::iterator end = points.end();
-	--end;
-	it = points.begin();
-	advance(it, 1);
-
-	//Delete any singular points. 
-	for(it ;it!=end; ++it){
-		if(it->fixed && point_to_beams.count(*it)==0)
-		{
-			points.erase(it);
-		}
-	}
-	*/
-	//remove_smaller_graphs();
-	//remove_smaller_graphs();
-	
+	set<Point*>::iterator it;
+	remove_smaller_graphs();
+	remove_smaller_graphs();
 }
 
 
@@ -196,15 +181,12 @@ void Bridge::remove_smaller_graphs(){
 
 	set<Point*>::iterator it;	
 	it = points.begin();
-//	point_color.insert(pair<Point*, int>(*it, -1));
 	set<Point*>::iterator end = points.end();
-//	point_color.insert(pair<Point*, int>(*end, -1));
 
-	int total_used_colors = 0;
+	int total_used_colors = 1;
 	for(it; it!=end; it++)
 	{
-		if(visited.count(*it)==0){
-			total_used_colors++;
+		if(visited.count(*it)==0&&(*it)->fixed==true){
 			_color_connected(*it, total_used_colors, &point_color, &visited, &color_count);
 		}
 
