@@ -55,25 +55,27 @@ int main(int argc, char** argv) {
   Bridge* bridge = new Bridge();
   bridge->generateBridge(125, .2);
   bridge->stripBridge();
+  
 
-  //bridge->calculateForce();
+  // Beam* b = new Beam(p1, p2, r);
+  // bridge->distributeLoad(Beam b, pair Force);
 
   drawBridge(bridge);
   glutSwapBuffers();
 
-  int k = 1;
-  while (k > 0) {
-    sleep_for(nanoseconds(5000000));
-    //cin >> k;
-    //cout << "next frame...." << endl;
-    for (int i = 0; i < 5; i++) {
-      bridge->calculateForce();
-    }
-    //usleep(300);
-    glClear(GL_COLOR_BUFFER_BIT);
-    drawBridge(bridge);
-    glutSwapBuffers();
-  }
+  // int k = 1;
+  // while (k > 0) {
+  //   sleep_for(nanoseconds(5000000));
+  //   //cin >> k;
+  //   //cout << "next frame...." << endl;
+  //   for (int i = 0; i < 5; i++) {
+  //     bridge->calculateForce();
+  //   }
+  //   //usleep(300);
+  //   glClear(GL_COLOR_BUFFER_BIT);
+  //   drawBridge(bridge);
+  //   glutSwapBuffers();
+  // }
 
   glutMainLoop();
 }

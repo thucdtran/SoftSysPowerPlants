@@ -6,8 +6,9 @@
 #include <map>
 #include <vector>
 #include <cmath>
-
+#include <armadillo>
 using namespace std;
+using namespace arma;
 
 class Bridge {
 	public:
@@ -18,6 +19,8 @@ class Bridge {
 		void stripBridge();
 		
 		void calculateForce();
+		void calculateForceMatrix();
+		pair<double, double> distributeLoad(Beam b, pair<double, double> Force, Point forcePoint);
 		double getCost();
 		set<Point*> getPoints();
 		set<Beam*> getBeams();
@@ -233,11 +236,9 @@ double Bridge::getCost()
 void Bridge::calculateForce() {
 	//vector<pair<double, double>> New_Points(points.size());
 
-
 	int i = 0;
 
 	// Apply some force at the top
-
 
 	for (Point* p : points) {
 		if (p->fixed) 
@@ -283,6 +284,21 @@ void Bridge::calculateForce() {
 		i++;
 	}
 }
+
+pair<double, double> Bridge::distributeLoad(Beam b, pair<double, double> Force, Point forcePoint) {
+	cout<<"hi"<<endl;
+	double F_y_a = Force.second * (b->p2->x - forcePoint->x)/(b->p2->x - b->p1->x);
+	double F_y_b = Force.second * (forcePoint->x - b->p1->x)/(b->p2->x - b->p1->x);
+	double F_x_a = Force.first * (b->p2->x - forcePoint->x)/(b->p2->x - b->p1->x);
+	double F_x_b = Force.first * (forcePoint->x - b->p1->x)/(b->p2->x - b->p1->x);
+}
+
+void Bridge::calculateForceMatrix() {
+	mat A = randu<mat>(4,5);
+  	mat B = randu<mat>(4,5);
+  	
+  	cout << A*B.t() << endl;
+  }
 
 double Bridge::distanceBetweenPoints(Point* p1, Point* p2) {
 	return pow(pow((p1->x - p2->x), 2) + pow(p1->y - p2->y, 2), 0.5); 
