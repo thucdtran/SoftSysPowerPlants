@@ -13,6 +13,9 @@ class Beam {
 		Beam(Point* _p1, Point* p2, double _r);
 		bool fail(double distance);
 		double getStress();
+		short beamType;
+		Beam(Point* _p1, Point* _p2, double _r, short _beamType);
+
 	private: 
 		double stress;
 };
@@ -32,4 +35,15 @@ bool Beam::fail(double distance) {
 
 double Beam::getStress() {
 	return stress;
+  beamType = 0;
+}
+
+Beam::Beam(Point* _p1, Point* _p2, double _r, short _beamType)
+{
+	p1 = _p1;
+	p2 = _p2;
+	k = 100000.0;
+	r = _r;
+	beamType = _beamType;
+	yield_strength = 0.02;
 }

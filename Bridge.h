@@ -14,6 +14,7 @@ class Bridge {
 		Bridge(); // constructor
 		Bridge(Bridge* a, Bridge* b, double k);
 		void generateBridge(int n, double k);
+		void generateBridge(int n, double k, int roadPoints);
 		void mutateBridge(double mutation_rate);
 		void stripBridge();
 		
@@ -85,6 +86,9 @@ void Bridge::generateBridge(int n, double k) {
 	// Generates n points
 	points.insert(new Point(-1, 0.5, true));
 	points.insert(new Point(1, 0.5, true));
+
+
+
 	for (int i = 0; i < n; i++) {
 		double x = 2*((double) rand() / (RAND_MAX))-1; // 0 to 1
 		double y = 2*((double) rand() / (RAND_MAX))-1; // 0 to 1
@@ -105,6 +109,66 @@ void Bridge::generateBridge(int n, double k) {
 				// Add to map
 				point_to_beams[p1].insert(beam);
 				point_to_beams[p2].insert(beam);
+			}
+			p2_count++;
+		}
+		p1_count++;
+	}
+}
+
+void Bridge::generateBridge(int n, double k, int roadPoints) {
+	// Generates n points
+	Point* firstPoint =new Point(-1, 0.5, true);
+	Point* lastPoint = new Point(1, 0.5, true) ;
+	points.insert(firstPoint);
+	points.insert(lastPoint);
+	double fixedX1 = -1;
+	double fixedY1 = .5;
+	double fixedX2 = 1;
+	double fixedY2 = .5;
+
+	double distance = distanceBetweenPoints(firstPoint, lastPoint);
+
+	roadPoints = distance/k+2;
+
+	for(int i = 1; i<roadPoints; i++)
+	{
+		double new_x = ((fixedX2-fixedX1)/roadPoints*i + fixedX1);
+		double new_y = ((fixedY2-fixedY1)/roadPoints*i + fixedY1);
+		points.insert(new Point(new_x, new_y, false, true));
+	}
+
+
+	for (int i = 0; i < n; i++) {
+		double x = 2*((double) rand() / (RAND_MAX))-1; // 0 to 1
+		double y = 2*((double) rand() / (RAND_MAX))-1; // 0 to 1
+		points.insert(new Point(x, y));
+	}
+
+	
+	int p1_count = 0;
+	for (Point* p1 : points) {
+		int p2_count = 0;
+		for (Point* p2 : points) {
+			if (p2 <= p1) 
+				continue;
+			double dist = distanceBetweenPoints(p1, p2);
+			if (dist < k) {
+				if(((p1->fixed||p2->fixed)&&(p1->road||p2->road))||(p1->road &&p2->road)){
+					Beam* beam = new Beam(p1, p2, dist, 1);
+					beams.insert(beam);
+					// Add to map
+					point_to_beams[p1].insert(beam);
+					point_to_beams[p2].insert(beam);
+				}
+				else{
+					Beam* beam = new Beam(p1, p2, dist);
+					beams.insert(beam);
+					// Add to map
+					point_to_beams[p1].insert(beam);
+					point_to_beams[p2].insert(beam);
+				}
+
 			}
 			p2_count++;
 		}
@@ -285,7 +349,7 @@ double Bridge::calculateFitness() {
 		avg_stress += beam->getStress();
 	}
 	double score = avg_stress / beams.size();
-	cout << score << " w/ " << beams.size() << " beams." << endl;
+	cout << "Fitness score: " << score << " w/ " << beams.size() << " beams." << endl;
 }
 
 double Bridge::distanceBetweenPoints(Point* p1, Point* p2) {
