@@ -54,6 +54,7 @@ int main(int argc, char** argv) {
 
   Bridge* bridge = new Bridge();
   bridge->generateBridge(100, .25,10);
+
   bridge->stripBridge();
 
   //bridge->calculateForce();
@@ -61,19 +62,19 @@ int main(int argc, char** argv) {
   drawBridge(bridge);
   glutSwapBuffers();
 
-  int k = 1;
-  while (k > 0) {
-    sleep_for(nanoseconds(5000000));
-    //cin >> k;
+  bool converged = false;
+  while (!converged) {
+    sleep_for(nanoseconds(500000));
     //cout << "next frame...." << endl;
     for (int i = 0; i < 5; i++) {
-      bridge->calculateForce();
+      converged = bridge->calculateForce();
     }
     //usleep(300);
     glClear(GL_COLOR_BUFFER_BIT);
     drawBridge(bridge);
     glutSwapBuffers();
   }
+  cout << "Animation done, convergence found..." << endl;
 
   glutMainLoop();
 }
