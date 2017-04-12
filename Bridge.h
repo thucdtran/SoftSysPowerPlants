@@ -90,10 +90,13 @@ void Bridge::generateBridge(int n, double k) {
 		points.insert(new Point(x, y));
 	}
 
-	// Construct beams between points within k distance. O(n^2) runtime.
+	
+	int p1_count = 0;
 	for (Point* p1 : points) {
+		int p2_count = 0;
 		for (Point* p2 : points) {
-			if (p1 == p2) continue;
+			if (p2 <= p1) 
+				continue;
 			double dist = distanceBetweenPoints(p1, p2);
 			if (dist < k) {
 				Beam* beam = new Beam(p1, p2, dist);
@@ -102,7 +105,9 @@ void Bridge::generateBridge(int n, double k) {
 				point_to_beams[p1].insert(beam);
 				point_to_beams[p2].insert(beam);
 			}
+			p2_count++;
 		}
+		p1_count++;
 	}
 }
 
@@ -243,7 +248,7 @@ double Bridge::getCost()
 }
 
 void Bridge::calculateForce() {
-	vector<pair<double, double>> New_Points(points.size());
+	//vector<pair<double, double>> New_Points(points.size());
 
 
 	int i = 0;
@@ -261,6 +266,7 @@ void Bridge::calculateForce() {
 		double Mx = 0.0; //How far the point will move
 		double My = 0.0; //based on gradient descent
 
+		// Apply force on first point
 		if (i == 1){
 			Fy = -100;
 		}
@@ -289,15 +295,14 @@ void Bridge::calculateForce() {
 
 
 		cout<<Fx<<", "<<Fy<<endl;
-		New_Points[i].first = p->x + Fx/1000;
-		New_Points[i].second = p->y + Fy/1000;
+		//New_Points[i].first = p->x + Fx/100;
+		//New_Points[i].second = p->y + Fy/1000;
 
 
 		//cout<<Fx<<", "<<Fy<<endl;
-		p->x += Fx / p->mass / 10000;
-		p->y += Fy / p->mass / 10000;
-
-
+		p->x += Fx / p->mass / 100000;
+		p->y += Fy / p->mass / 100000;
+		//cout << Fx / p->mass / 1000 << ", " << Fy / p->mass / 1000 << endl;
 		i++;
 	}
 }

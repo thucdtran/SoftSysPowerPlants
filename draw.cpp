@@ -13,6 +13,8 @@
 #include <map>
 #include <string>
 #include "Generation.h"
+#include <chrono>
+#include <thread>
 
 #ifdef __APPLE_CC__
 #include <GLUT/glut.h>
@@ -25,7 +27,8 @@ void drawBeam(Beam* beam);
 void drawPoint(Point* p);
 
 using namespace std;
-
+using namespace std::this_thread; // For sleep
+using namespace std::chrono;  // For sleep
 
 // Initializes GLUT, the display mode, and main window; registers callbacks;
 // enters the main event loop.
@@ -50,20 +53,24 @@ int main(int argc, char** argv) {
   srand(time(NULL));
 
   Bridge* bridge = new Bridge();
-  bridge->generateBridge(1, 1);
+  bridge->generateBridge(100, .2);
   bridge->stripBridge();
 
-  bridge->calculateForce();
+  //bridge->calculateForce();
 
   drawBridge(bridge);
   glutSwapBuffers();
 
   int k = 1;
   while (k > 0) {
-    cin >> k;
-    cout << "next frame...." << endl;
+    sleep_for(nanoseconds(5000000));
+    //cin >> k;
+    //cout << "next frame...." << endl;
+    for (int i = 0; i < 5; i++) {
+      bridge->calculateForce();
+    }
+    //usleep(300);
     glClear(GL_COLOR_BUFFER_BIT);
-    bridge->calculateForce();
     drawBridge(bridge);
     glutSwapBuffers();
   }
