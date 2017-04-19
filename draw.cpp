@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
   Bridge* bridge = new Bridge();
   //bridge->generateBridge(10, .25,0);
   int road_points = 15;
-  bridge->generateBridge(5, 1, road_points);
+  bridge->generateBridge(20, 1, road_points);
   bridge->stripBridge();
 
   // Beam* b = new Beam(p1, p2, r);
@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
 
   int k = 1;
   while (k > 0) {
-    sleep_for(nanoseconds(100000000));
+    sleep_for(nanoseconds(10000000));
     //cin >> k;
     //cout << "next frame...." << endl;
     for (int i = 0; i < 5; i++) { //What is the magic number 5???

@@ -154,6 +154,19 @@ void Bridge::generateBridge(int n, double k, int roadPoints = 0) {
 	double fixedX2 = 1;
 	double fixedY2 = .5;
 
+
+	int mesh_fine = 5; //Determines the grid mesh fineness.
+	vector<Point*> grid_mesh;
+	double g_x;
+	double g_y;
+	for (int x_it = 0;x_it<mesh_fine;x_it++) {
+		for (int y_it=0;y_it<mesh_fine;y_it++) {
+			g_x = (double(x_it)/mesh_fine-.5)*2 + double(1.0/mesh_fine);
+			g_y = (double(y_it)/mesh_fine-.5)*2;
+			grid_mesh.push_back(new Point(g_x, g_y, false));
+		}
+	}
+
 	double distance = distanceBetweenPoints(firstPoint, lastPoint);
 
 	// roadPoints = distance/k+2;
@@ -167,9 +180,11 @@ void Bridge::generateBridge(int n, double k, int roadPoints = 0) {
 
 
 	for (int i = 0; i < n; i++) {
-		double x = 2*((double) rand() / (RAND_MAX))-1; // 0 to 1
-		double y = 2*((double) rand() / (RAND_MAX))-1; // 0 to 1
-		points.insert(new Point(x, y));
+	int index = rand() % grid_mesh.size();
+	
+	points.insert(grid_mesh[index]);
+	grid_mesh.erase(grid_mesh.begin() + index);
+
 	}
 
 
