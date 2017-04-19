@@ -143,7 +143,7 @@ void Bridge::generateBridge(int n, double k) {
 	}
 }
 
-void Bridge::generateBridge(int n, double k, int roadPoints) {
+void Bridge::generateBridge(int n, double k, int roadPoints = 0) {
 	// Generates n points
 	Point* firstPoint =new Point(-1, 0.5, true);
 	Point* lastPoint = new Point(1, 0.5, true) ;
