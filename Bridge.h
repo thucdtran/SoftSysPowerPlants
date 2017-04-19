@@ -10,6 +10,8 @@
 using namespace std;
 using namespace arma;
 
+
+
 class Bridge {
 	public:
 		Bridge(); // constructor
@@ -19,7 +21,7 @@ class Bridge {
 		void mutateBridge(double mutation_rate);
 		void stripBridge();
 		
-		bool calculateForce();
+		bool calculateForce(int road_points, pair<double, double>Force);
 		void calculateForceMatrix();
 		pair<pair<double, double>, pair<double, double>> distributeLoad(Beam b, pair<double, double> Force, Point forcePoint);
 
@@ -110,7 +112,7 @@ void Bridge::generateBridge(int n, double k) {
 		double x = 2*((double) rand() / (RAND_MAX))-1; // 0 to 1
 		double y = 2*((double) rand() / (RAND_MAX))-1; // 0 to 1
 		int index = rand() % grid_mesh.size();
-		printf("%d, %d\n", index, grid_mesh.size());
+		//printf("%d, %d\n", index, grid_mesh.size());
 		// x = round(mesh_fine*x)/mesh_fine; //This puts the numbers in a grid
 		// printf("x = %f\n", x);
 		// y = round(mesh_fine*y)/mesh_fine;
@@ -154,7 +156,7 @@ void Bridge::generateBridge(int n, double k, int roadPoints) {
 
 	double distance = distanceBetweenPoints(firstPoint, lastPoint);
 
-	roadPoints = distance/k+2;
+	// roadPoints = distance/k+2;
 
 	for(int i = 1; i<roadPoints; i++)
 	{
@@ -321,9 +323,11 @@ double Bridge::getCost()
 
 
 
-bool Bridge::calculateForce() {
+bool Bridge::calculateForce(int road_points, pair<double, double> Force = pair<double, double>(0,-50000)) {
 	bool converged = true;
-
+	static double progress = 0; //For now, this is the progress of the force across
+								//the bridge, from 0 to 1.
+	int road_counter = 0;
 	for (Point* p : points) {
 		if (p->fixed) 
 			continue;
@@ -331,12 +335,26 @@ bool Bridge::calculateForce() {
 		double Fx = 0.0;
 		double Fy = 0.0;
 
-		double Mx = 0.0; //How far the point will move
-		double My = 0.0; //based on gradient descent
-
-
 		Point* p_other;
+		
+		if (p->road) {
+				if (road_counter < road_points) {
+					printf("%d\n", int(round(progress*road_points)));
+					printf("Road_Counter = %d\n", road_counter);
+					if (road_counter == int(round(progress*road_points)))
+					{	
+						printf("AYYYYYYYYYYYYYYYYY\n");
+						Fy = Force.second;
+					} else {
+						Fy = 0;
+					}
+					road_counter++;
+
+				}
+			}
+
 		for (Beam* beam : point_to_beams[p]) {
+
 			if (p != beam->p1){
 				p_other = beam->p1;
 			}else{
@@ -352,6 +370,10 @@ bool Bridge::calculateForce() {
 			Fx += F * unit_vector.first;
 			Fy += F * unit_vector.second;
 			Fy -= p->mass * 9.8; // gravity
+			// if (p->road)
+			// {
+			// 	Fy += Force.second;
+			// }
 		}
 
 
@@ -361,19 +383,20 @@ bool Bridge::calculateForce() {
 		double dx = Fx / p->mass / 10000.0 / points.size();
 		double dy = Fy / p->mass / 10000.0 / points.size();
 
-		// float tol = .001;
-		// if (dx > tol)
-		// {
-		// 	dx = tol;
-		// } else if(dx < -tol){
-		// 	dx = -tol;
-		// }
-		// 	if (dy > tol)
-		// {
-		// 	dy = tol;
-		// } else if(dy < -tol){
-		// 	dy = -tol;
-		// }
+		float tol = .001;  //This limits the size of step that
+		if (dx > tol)	   //the force solver makes.
+		{
+			dx = tol;
+		} else if(dx < -tol){
+			dx = -tol;
+		}
+			if (dy > tol)
+		{
+			dy = tol;
+		} else if(dy < -tol){
+			dy = -tol;
+		}
+
 
 		p->x += dx;
 		p->y += dy;
@@ -381,6 +404,7 @@ bool Bridge::calculateForce() {
 			converged = false;
 		}
 	}
+	progress += .001;
 	//cout << "Converged: " << converged << endl;
 	return converged;
 }

@@ -54,10 +54,9 @@ int main(int argc, char** argv) {
 
   Bridge* bridge = new Bridge();
   //bridge->generateBridge(10, .25,0);
-
-  bridge->generateBridge(15, 1);
+  int road_points = 15;
+  bridge->generateBridge(5, 1, road_points);
   bridge->stripBridge();
-  
 
   // Beam* b = new Beam(p1, p2, r);
   // bridge->distributeLoad(Beam b, pair Force);
@@ -68,11 +67,11 @@ int main(int argc, char** argv) {
 
   int k = 1;
   while (k > 0) {
-    sleep_for(nanoseconds(10000000));
+    sleep_for(nanoseconds(100000000));
     //cin >> k;
     //cout << "next frame...." << endl;
-    for (int i = 0; i < 5; i++) {
-      bridge->calculateForce();
+    for (int i = 0; i < 5; i++) { //What is the magic number 5???
+      bridge->calculateForce(road_points);
     }
     //usleep(300);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -85,7 +84,7 @@ int main(int argc, char** argv) {
     sleep_for(nanoseconds(500000));
     //cout << "next frame...." << endl;
     for (int i = 0; i < 5; i++) {
-      converged = bridge->calculateForce();
+      converged = bridge->calculateForce(road_points);
     }
     //usleep(300);
     glClear(GL_COLOR_BUFFER_BIT);
