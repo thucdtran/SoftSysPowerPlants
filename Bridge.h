@@ -19,14 +19,13 @@ class Bridge {
 		void mutateBridge(double mutation_rate);
 		void stripBridge();
 		
-
-		void calculateForce();
-		void calculateForceMatrix();
-		pair<double, double> distributeLoad(Beam b, pair<double, double> Force, Point forcePoint);
-
 		bool calculateForce();
+		void calculateForceMatrix();
+		pair<pair<double, double>, pair<double, double>> distributeLoad(Beam b, pair<double, double> Force, Point forcePoint);
+
 		double calculateFitness();
 
+		void moveLoadAlongBeam(Beam b, pair<double, double> Force);
 		double getCost();
 		set<Point*> getPoints();
 		set<Beam*> getBeams();
@@ -94,12 +93,31 @@ void Bridge::generateBridge(int n, double k) {
 	points.insert(new Point(-1, 0.5, true));
 	points.insert(new Point(1, 0.5, true));
 
+	int mesh_fine = 5; //Determines the grid mesh fineness.
+	vector<Point*> grid_mesh;
+	double g_x;
+	double g_y;
+	for (int x_it = 0;x_it<mesh_fine;x_it++) {
+		for (int y_it=0;y_it<mesh_fine;y_it++) {
+			g_x = (double(x_it)/mesh_fine-.5)*2 + double(1.0/mesh_fine);
+			g_y = (double(y_it)/mesh_fine-.5)*2;
+			grid_mesh.push_back(new Point(g_x, g_y, false));
+		}
+	}
 
 
 	for (int i = 0; i < n; i++) {
 		double x = 2*((double) rand() / (RAND_MAX))-1; // 0 to 1
 		double y = 2*((double) rand() / (RAND_MAX))-1; // 0 to 1
-		points.insert(new Point(x, y));
+		int index = rand() % grid_mesh.size();
+		printf("%d, %d\n", index, grid_mesh.size());
+		// x = round(mesh_fine*x)/mesh_fine; //This puts the numbers in a grid
+		// printf("x = %f\n", x);
+		// y = round(mesh_fine*y)/mesh_fine;
+
+		printf("point = %f, %f\n", (grid_mesh[index])->x, (grid_mesh[index])->y);
+		points.insert(grid_mesh[index]);
+		grid_mesh.erase(grid_mesh.begin() + index);
 	}
 
 	
@@ -152,7 +170,7 @@ void Bridge::generateBridge(int n, double k, int roadPoints) {
 		points.insert(new Point(x, y));
 	}
 
-	
+
 	int p1_count = 0;
 	for (Point* p1 : points) {
 		int p2_count = 0;
@@ -301,13 +319,6 @@ double Bridge::getCost()
 	return 0;
 }
 
-<<<<<<< HEAD
-void Bridge::calculateForce() {
-	//vector<pair<double, double>> New_Points(points.size());
-
-	int i = 0;
-
-	// Apply some force at the top
 
 
 bool Bridge::calculateForce() {
@@ -347,8 +358,23 @@ bool Bridge::calculateForce() {
 		//cout<<Fx<<", "<<Fy<<endl;
 
 		//cout<<Fx<<", "<<Fy<<endl;
-		double dx = Fx / p->mass / 100000.0;
-		double dy = Fy / p->mass / 100000.0;
+		double dx = Fx / p->mass / 10000.0 / points.size();
+		double dy = Fy / p->mass / 10000.0 / points.size();
+
+		// float tol = .001;
+		// if (dx > tol)
+		// {
+		// 	dx = tol;
+		// } else if(dx < -tol){
+		// 	dx = -tol;
+		// }
+		// 	if (dy > tol)
+		// {
+		// 	dy = tol;
+		// } else if(dy < -tol){
+		// 	dy = -tol;
+		// }
+
 		p->x += dx;
 		p->y += dy;
 		if (abs(dx) > 0.000001 || abs(dy) > 0.000001) {
@@ -369,12 +395,23 @@ double Bridge::calculateFitness() {
 	cout << "Fitness score: " << score << " w/ " << beams.size() << " beams." << endl;
 }
 
-pair<double, double> Bridge::distributeLoad(Beam b, pair<double, double> Force, Point forcePoint) {
-	cout<<"hi"<<endl;
-	double F_y_a = Force.second * (b->p2->x - forcePoint->x)/(b->p2->x - b->p1->x);
-	double F_y_b = Force.second * (forcePoint->x - b->p1->x)/(b->p2->x - b->p1->x);
-	double F_x_a = Force.first * (b->p2->x - forcePoint->x)/(b->p2->x - b->p1->x);
-	double F_x_b = Force.first * (forcePoint->x - b->p1->x)/(b->p2->x - b->p1->x);
+pair<pair<double, double>, pair<double, double>> Bridge::distributeLoad(Beam b, pair<double, double> Force, Point forcePoint) {
+	//This is a simplistic force distribution model, assuming that force
+	//distributes evenly as the load moves from left to right along the beam.
+	//This returns the forces on each of the points of the beam.
+
+	double F_y_a = Force.second * (b.p2->x - forcePoint.x)/(b.p2->x - b.p1->x);
+	double F_y_b = Force.second * (forcePoint.x - b.p1->x)/(b.p2->x - b.p1->x);
+	double F_x_a = Force.first * (b.p2->x - forcePoint.x)/(b.p2->x - b.p1->x);
+	double F_x_b = Force.first * (forcePoint.x - b.p1->x)/(b.p2->x - b.p1->x);
+
+}
+
+void Bridge::moveLoadAlongBeam(Beam b, pair<double, double> Force) {
+	//This takes a beam and a force, and moves the force linearly
+	//along the beam, returning a list of forces on each of the points
+	//of the beam for all of the forces.
+
 }
 
 void Bridge::calculateForceMatrix() {

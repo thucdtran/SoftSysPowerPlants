@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
   Bridge* bridge = new Bridge();
   //bridge->generateBridge(10, .25,0);
 
-  bridge->generateBridge(7, 1);
+  bridge->generateBridge(15, 1);
   bridge->stripBridge();
   
 
@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
 
   int k = 1;
   while (k > 0) {
-    sleep_for(nanoseconds(5000000));
+    sleep_for(nanoseconds(10000000));
     //cin >> k;
     //cout << "next frame...." << endl;
     for (int i = 0; i < 5; i++) {
