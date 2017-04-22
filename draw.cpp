@@ -8,6 +8,7 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <set>
 #include <map>
@@ -97,6 +98,52 @@ int main(int argc, char** argv) {
 
   glutMainLoop();
 }
+
+
+bool bridgeComp(Bridge* a, Bridge* b)
+{
+    return a->calculateFitness()<b->calculateFitness();
+}
+
+vector<Bridge *> generateMultipleBridges(int road_points, int n, double k){
+  int quantityOfBridges = 50;
+  vector <Bridge *> allBridges(quantityOfBridges);
+ 
+  for(int x = 0; x<quantityOfBridges; x++)
+  {
+    allBridges[x] = new Bridge();
+    allBridges[x]->generateBridge(n, k, road_points);
+    allBridges[x]->stripBridge();
+  }
+  sort(allBridges.begin(), allBridges.end(), bridgeComp);
+
+}
+
+
+
+void evolveBridge(vector<Bridge *> bridges, int road_points)
+{
+  vector<Bridge*> copyBridges = bridges;
+
+
+  for (int x = 0; x< copyBridges.size(); x++){
+    bool converged = false;
+    int iter = 0;
+    while(!converged && iter<10000) {
+       for(int i = 0; i < 5; i++) {
+          converged = copyBridges[x]->calculateForce(road_points);
+       }
+    }
+  }
+  sort(copyBridges.begin(), copyBridges.end(), bridgeComp);
+  for( int x = 21; x<copyBridges.size(); x++)
+  {
+    
+  }
+
+}
+
+
 
 
 
