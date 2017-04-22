@@ -9,13 +9,6 @@
 
 using namespace std;
 
-
-struct cmp {
-	bool operator()(const Point* a, const Point* b) const {
-		return a->order < b->order;
-	}
-};
-
 class Bridge {
 	public:
 		Bridge(); // constructor
@@ -27,14 +20,14 @@ class Bridge {
 		bool calculateForce();
 		double calculateFitness();
 		double getCost();
-		set<Point*, cmp> getPoints();
+		set<Point*> getPoints();
 		set<Beam*> getBeams();
 
 	private:
 		double distanceBetweenPoints(Point* p1, Point* p2);
 		void remove_smaller_graphs();
 		void _color_connected(Point* p, int color, map<Point*, int> *point_colors, map<Point*, bool> *visited, map<int, int>*color_count);
-		set<Point*, cmp> points;
+		set<Point*> points;
 		set<Beam*> beams;
 		map<Point*, set<Beam*> > point_to_beams;
 };
@@ -92,13 +85,13 @@ Bridge::Bridge(Bridge* a, Bridge* b, double r)
 void Bridge::generateBridge(int n, double k) {
 	// Generates n points
 	
-	points.insert(new Point(-1, 0.5, true, 0));
-	points.insert(new Point(1, 0.5, true, 1));
+	points.insert(new Point(-1, 0.5, true));
+	points.insert(new Point(1, 0.5, true));
 	int count = 2;
 	for (int i = 0; i < n; i++) {
 		double x = 2*((double) rand() / (RAND_MAX))-1; // 0 to 1
 		double y = 2*((double) rand() / (RAND_MAX))-1; // 0 to 1
-		points.insert(new Point(x, y, count));
+		points.insert(new Point(x, y));
 		count++;
 	}
 
@@ -265,7 +258,7 @@ bool Bridge::calculateForce() {
 			pair<double, double> unit_vector = make_pair((p->x - p_other->x) / dist, (p->y - p_other->y)/ dist);
 			
 			if (beam->fail(dist)) {
-				cout << "Beam failed!" << endl;
+				//cout << "Beam failed!" << endl;
 			}
 			double F = beam->k * (beam->r - dist);
 			Fx += F * unit_vector.first;
@@ -303,15 +296,13 @@ double Bridge::distanceBetweenPoints(Point* p1, Point* p2) {
 	return pow(pow((p1->x - p2->x), 2) + pow(p1->y - p2->y, 2), 0.5); 
 }
 
-set<Point*, cmp> Bridge::getPoints() {
+set<Point*> Bridge::getPoints() {
 	return points;
 }
 
 set<Beam*> Bridge::getBeams() {
 	return beams;
 }
-
-
 
 
 
