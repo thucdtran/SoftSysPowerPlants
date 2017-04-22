@@ -430,7 +430,7 @@ bool Bridge::calculateForce(int road_points, pair<double, double> Force = pair<d
 double Bridge::calculateFitness() {
 	double avg_stress = 0.0;
 	for (Beam* beam : beams) {
-		avg_stress += beam->getStress();
+		avg_stress += (beam->getStress())^2;
 	}
 	double score = avg_stress / beams.size();
 	//cout << "Fitness score: " << score << " w/ " << beams.size() << " beams." << endl;
