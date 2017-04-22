@@ -28,7 +28,7 @@ class Bridge {
 		double calculateFitness();
 
 		void moveLoadAlongBeam(Beam b, pair<double, double> Force);
-		double getCost();
+		double getCost()
 		set<Point*> getPoints();
 		set<Beam*> getBeams();
 
@@ -181,7 +181,7 @@ void Bridge::generateBridge(int n, double k, int roadPoints = 0) {
 
 	for (int i = 0; i < n; i++) {
 	int index = rand() % grid_mesh.size();
-	
+
 	points.insert(grid_mesh[index]);
 	grid_mesh.erase(grid_mesh.begin() + index);
 
@@ -333,7 +333,11 @@ void Bridge::remove_smaller_graphs(){
 
 double Bridge::getCost()
 {
-	return 0;
+	double cost = 0;
+	for (Beam* beam : beams) {
+		cost = distanceBetweenPoints(beam->p1, beam->p2);
+	}
+	return cost;
 }
 
 
@@ -415,12 +419,12 @@ bool Bridge::calculateForce(int road_points, pair<double, double> Force = pair<d
 
 		p->x += dx;
 		p->y += dy;
-		if (abs(dx) > 0.000001 || abs(dy) > 0.000001) {
+		if (abs(dx) > 0.0001 || abs(dy) > 0.0001) {
 			converged = false;
 		}
 	}
 	progress += .001;
-	//cout << "Converged: " << converged << endl;
+	cout << "Converged: " << converged << endl;
 	return converged;
 }
 
