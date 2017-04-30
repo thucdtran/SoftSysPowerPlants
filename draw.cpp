@@ -28,8 +28,8 @@ void drawBridge(Bridge* bridge);
 void drawBeam(Beam* beam);
 void drawPoint(Point* p);
 void convergeBridge(Bridge * bridge, int road_points);
-void evolveBridge(vector<Bridge *> *bridges, int road_points,double k);
-vector<Bridge *> generateMultipleBridges(int road_points, int n, double k);
+void evolveBridge(vector<Bridge *> *bridges, int road_points,double max_dist_between_points);
+vector<Bridge *> generateMultipleBridges(int road_points, int n, double max_dist_between_points,int quantityOfBridges);
 
 using namespace std;
 using namespace std::this_thread; // For sleep
@@ -54,17 +54,19 @@ int main(int argc, char** argv) {
     glClear(GL_COLOR_BUFFER_BIT);
 
 
-
+    //Generates a bridge pointer vector
     vector<Bridge*> bridges(50);
-    bridges = generateMultipleBridges(15, 1, 1);
-    drawBridge(bridges[0]);
+    //Fill the vector with random bridges. 
+    bridges = generateMultipleBridges(15, 1, 1, 50);
+
     glClear(GL_COLOR_BUFFER_BIT);
-    drawBridge(bridges[0]);
     glutSwapBuffers();
-  
+    
+    //Tries to evolve our bridges. 
     for(int x = 0; x<1000; x++)
     {
         evolveBridge(&bridges, 15,1);
+        //Draws to screen the best bridge. 
         glClear(GL_COLOR_BUFFER_BIT);
         drawBridge(bridges[0]);
         glutSwapBuffers();
@@ -73,47 +75,58 @@ int main(int argc, char** argv) {
     glutMainLoop();
 }
 
-
+//Returns the bridge that is more fit. True if a is better, b otherwise. 
 bool bridgeComp(Bridge* a, Bridge* b)
 {
     return a->fitness<b->fitness;
 }
 
-vector<Bridge *> generateMultipleBridges(int road_points, int n, double k){
-  int quantityOfBridges = 50;
+//Generates a vector of bridges.
+vector<Bridge *> generateMultipleBridges(int road_points, int n, double max_dist_between_points,   int quantityOfBridges){
+  
   vector <Bridge *> allBridges(quantityOfBridges);
- cout<<"test\n";
+  //Generates a new bridge for each one. 
   for(int x = 0; x<quantityOfBridges; x++)
   {
     allBridges[x] = new Bridge();
-    allBridges[x]->generateBridge(n, k, road_points);
+    allBridges[x]->generateBridge(n, max_dist_between_points, road_points);
     allBridges[x]->stripBridge();
   }
-
+  //Sorts by fitness. 
   sort(allBridges.begin(), allBridges.end(), bridgeComp);
   return allBridges;
 }
 
 
-
-void  evolveBridge(vector<Bridge *> *bridges, int road_points,double k)
+//Takes in a vector of bridges, and acts on it to produce a new set of 
+//Hopefully better bridges. 
+void  evolveBridge(vector<Bridge *> *bridges, int road_points,double max_dist_between_points)
 {
   //Assumption is that the bridge is already sorted coming in. 
+  //We keep the 30 best bridges of the previous generation
+
+
+  //Generating 15 new bridges entirely
   for(int x=30; x<45; x++)
   {
         Bridge* bridge = new Bridge();
-        bridge->generateBridge(5, k, road_points);
+        bridge->generateBridge(rand()%25, max_dist_between_points, road_points);
         (*bridges)[x] = bridge;
   }
+
+  //Tries to use genetic crossover to make new bridges.
   for(int x= 45; x<bridges->size(); x++)
   {
+    //Picks between the top ten bridges. 
     int a = rand()%10;
     int b = rand()%10;
-    (*bridges)[x] = new Bridge((*bridges)[a], (*bridges)[b], k);
+    //Creates a new bridge based off of the A-th and B-th best bridges. 
+    (*bridges)[x] = new Bridge((*bridges)[a], (*bridges)[b], max_dist_between_points);
     (*bridges)[x]->mutateBridge();
     (*bridges)[x]->stripBridge();
   }
    
+   //Attempt to multithread the gradient descent step of our simulation
   vector<thread> threads;
   for (int x = 0; x< bridges->size(); x++){
     threads.push_back(thread(convergeBridge, (*bridges)[x], road_points));
@@ -123,25 +136,25 @@ void  evolveBridge(vector<Bridge *> *bridges, int road_points,double k)
   {
     threads[i].join();
   }
+
+  //Calculates the fitness of each newly simulated bridge. 
   for(int x = 0; x<50;x++){
     (*bridges)[x]->calculateFitness();
   }
+  //Sorts the bridges based on our fitness function. 
   sort(bridges->begin(), bridges->end(), bridgeComp);
-  double fit = 0;
-  for(int x = 0; x<50;x++){
 
-      fit+=(*bridges)[x]->fitness;
-  }
-  cout<<fit/50.0<<"\n";
-   return;
+  return;
 
 }
 
-
+//Simulates the bridge over time. 
 void convergeBridge(Bridge * bridge, int road_points)
 {
+
     bool converged = false;
     int iter = 0;
+    //Only does 2000 iterations here due to time constraint.
     while(!converged && iter<2000) {
        for(int i = 0; i < 5; i++) {
           converged = bridge->calculateForce(road_points);
@@ -150,7 +163,7 @@ void convergeBridge(Bridge * bridge, int road_points)
     }
 }
 
-
+//Draws the bridge to the buffer. 
 void drawBridge(Bridge* bridge) {
   for (Beam* beam : bridge->getBeams()) {
     drawBeam(beam);
@@ -160,7 +173,7 @@ void drawBridge(Bridge* bridge) {
   }
 }
 
-
+//Draws each beam on the bridge. 
 void drawBeam(Beam* beam) {
   glBegin(GL_LINES);
     double color = beam->getStress();
@@ -168,14 +181,13 @@ void drawBeam(Beam* beam) {
       glColor3f(1, 1, 0);
     else 
       glColor3f(color, 0, 0);
-  /*if(beam->beamType == 1) 
-    glColor3f(0,1,0);*/
 
     glVertex2f(beam->p1->x, beam->p1->y);
     glVertex2f(beam->p2->x, beam->p2->y);
   glEnd();
 }
 
+//Draws each point on the bridge. 
 void drawPoint(Point* p) {
   double x = p->x;
   double y = p->y;
