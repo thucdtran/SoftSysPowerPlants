@@ -56,11 +56,13 @@ int main(int argc, char** argv) {
   srand(time(NULL));
   int r = 1.0;
   Bridge* bridge = new Bridge(r);
-  bridge->generateBridge(15);
+  bridge->generateBridge(30);
   bridge->stripBridge();
-
+  int k;
+  cin >> k;
+  animateBridge(bridge);
   //bridge->calculateForce();
-
+  /*
   drawBridge(bridge);
   glutSwapBuffers();
 
@@ -83,7 +85,7 @@ int main(int argc, char** argv) {
     int k = 0;
     cin >> k;
   }  
-
+  */
   glutMainLoop();
 
   return 0;
@@ -94,7 +96,7 @@ void animateBridge(Bridge* bridge) {
   bool converged = false;
   int iter = 0;
   while (!converged && iter < 1000) {
-    sleep_for(nanoseconds(500000));
+    sleep_for(nanoseconds(10000000));
     for (int i = 0; i < 5; i++) {
       converged = bridge->calculateForce();
     }
