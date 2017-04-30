@@ -11,6 +11,7 @@ using namespace std;
 using namespace arma;
 
 
+int mesh_fine = 10; //Determines the grid mesh fineness.
 
 class Bridge {
 	public:
@@ -26,17 +27,17 @@ class Bridge {
 		pair<pair<double, double>, pair<double, double>> distributeLoad(Beam b, pair<double, double> Force, Point forcePoint);
 
 		double calculateFitness();
-
 		void moveLoadAlongBeam(Beam b, pair<double, double> Force);
 		double getCost();
 		set<Point*> getPoints();
 		set<Beam*> getBeams();
+		set<Point*> points;
 
 	private:
 		double distanceBetweenPoints(Point* p1, Point* p2);
 		void remove_smaller_graphs();
 		void _color_connected(Point* p, int color, map<Point*, int> *point_colors, map<Point*, bool> *visited, map<int, int>*color_count);
-		set<Point*> points;
+		
 		set<Beam*> beams;
 		map<Point*, set<Beam*> > point_to_beams;
 };
@@ -95,7 +96,7 @@ void Bridge::generateBridge(int n, double k) {
 	points.insert(new Point(-1, 0.5, true));
 	points.insert(new Point(1, 0.5, true));
 
-	int mesh_fine = 5; //Determines the grid mesh fineness.
+	
 	vector<Point*> grid_mesh;
 	double g_x;
 	double g_y;
@@ -155,7 +156,7 @@ void Bridge::generateBridge(int n, double k, int roadPoints = 0) {
 	double fixedY2 = .5;
 
 
-	int mesh_fine = 5; //Determines the grid mesh fineness.
+	
 	vector<Point*> grid_mesh;
 	double g_x;
 	double g_y;
@@ -400,7 +401,7 @@ bool Bridge::calculateForce(int road_points, pair<double, double> Force = pair<d
 		double dx = Fx / p->mass / 10000.0 / points.size();
 		double dy = Fy / p->mass / 10000.0 / points.size();
 
-		float tol = .001;  //This limits the size of step that
+		float tol = .01;  //This limits the size of step that
 		if (dx > tol)	   //the force solver makes.
 		{
 			dx = tol;
@@ -417,13 +418,15 @@ bool Bridge::calculateForce(int road_points, pair<double, double> Force = pair<d
 
 		p->x += dx;
 		p->y += dy;
-		if (abs(dx) > 0.0001 || abs(dy) > 0.0001) {
+		if ((abs(dx) > 0.00001 && abs(dy) > 0.00001) ) {
 			converged = false;
 		}
 	}
 	progress += .001;
 	//cout << "Converged: " << converged << endl;
 	return converged;
+
+
 }
 
 // Returns the average stress on the beams. Use to evaluate fitness of a bridge.
@@ -433,8 +436,12 @@ double Bridge::calculateFitness() {
 		avg_stress += (beam->getStress())*(beam->getStress());
 	}
 	double score = avg_stress / beams.size();
-	//cout << "Fitness score: " << score << " w/ " << beams.size() << " beams." << endl;
+	cout << "Fitness score: " << score << " w/ " << beams.size() << " beams." << endl;
+	return score;
 }
+
+
+
 
 pair<pair<double, double>, pair<double, double>> Bridge::distributeLoad(Beam b, pair<double, double> Force, Point forcePoint) {
 	//This is a simplistic force distribution model, assuming that force

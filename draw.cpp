@@ -25,6 +25,8 @@
 void drawBridge(Bridge* bridge);
 void drawBeam(Beam* beam);
 void drawPoint(Point* p);
+void simulate(Bridge* bridge, int road_points);
+void gradientDescent(Bridge* bridge, int road_points);
 
 using namespace std;
 using namespace std::this_thread; // For sleep
@@ -51,57 +53,75 @@ int main(int argc, char** argv) {
   // Window stretches from (-1,1) in the x-axis and y-axis.
 
   srand(time(NULL));
-
   Bridge* bridge = new Bridge();
-  //bridge->generateBridge(10, .25,0);
-  int road_points = 15;
-  bridge->generateBridge(20, 1, road_points);
-  printf("%f\n", bridge->getCost());
-  bridge->stripBridge();
+  Bridge* best_bridge = bridge;
+  double old_score = bridge->calculateFitness();
+  double best_score = 20;
+  int best_road_points = 0;
+  for (int i = 0; i <30; ++i)
+  {
+      bridge = new Bridge();
 
-  // Beam* b = new Beam(p1, p2, r);
-  // bridge->distributeLoad(Beam b, pair Force);
+      //bridge->generateBridge(10, .25,0);
+      int road_points = 15;
+      
+      bridge->generateBridge(20, 1, road_points);
+      printf("%f\n", bridge->getCost());
+      bridge->stripBridge();
+      gradientDescent(bridge, road_points);
+      // Beam* b = new Beam(p1, p2, r);
+      // bridge->distributeLoad(Beam b, pair Force);
 
-  drawBridge(bridge);
-  glutSwapBuffers();
+      drawBridge(bridge);
+      glutSwapBuffers();
 
+    simulate(bridge, road_points);
 
-  int k = 1;
-  while (k > 0) {
-    sleep_for(nanoseconds(10000000));
-    //cin >> k;
-    //cout << "next frame...." << endl;
-    for (int i = 0; i < 5; i++) { //What is the magic number 5???
-      bridge->calculateForce(road_points);
+    if(bridge->calculateFitness() < best_score) {
+      best_bridge = bridge;
+      best_road_points = road_points;
+      best_score = bridge->calculateFitness();
     }
-    //usleep(300);
-    glClear(GL_COLOR_BUFFER_BIT);
-    drawBridge(bridge);
-    glutSwapBuffers();
-  }
+    old_score = bridge->calculateFitness();
+    cout << "Animation done, convergence found..." << endl;
 
-  bool converged = false;
-  while (!converged) {
-    sleep_for(nanoseconds(500000));
-    //cout << "next frame...." << endl;
-    for (int i = 0; i < 5; i++) {
-      converged = bridge->calculateForce(road_points);
-    }
-    //usleep(300);
-    glClear(GL_COLOR_BUFFER_BIT);
-    drawBridge(bridge);
-    glutSwapBuffers();
   }
-  bridge->calculateFitness();
-  cout << "Animation done, convergence found..." << endl;
+  cout << "Best Score :" << best_score << endl;
+  simulate(best_bridge, best_road_points);
 
 
   glutMainLoop();
 }
 
+void simulate(Bridge* bridge, int road_points){
+  double time_start  = time(NULL);
+  double time_elapsed = 0;
+  bool converged = false;
+  while (!converged) {
+    sleep_for(nanoseconds(500000));
+    time_elapsed = time(NULL) - time_start;
+    //cout << "next frame...." << endl;
+    for (int i = 0; i < 5; i++) {
+      converged = bridge->calculateForce(road_points);
+      if (time_elapsed > 2) {
+        converged = 1;
+      }
+    }
+    //usleep(300);
+    glClear(GL_COLOR_BUFFER_BIT);
+    drawBridge(bridge);
+    glutSwapBuffers();
+  }
 
+}
 
-
+void gradientDescent(Bridge* bridge, int road_points){
+  Bridge bridge_copy = bridge;
+  for (Point* p : bridge_copy->points) {
+    simulate(bridge_copy);
+    p.x += .001;
+  }
+}
 
 void drawBridge(Bridge* bridge) {
   for (Beam* beam : bridge->getBeams()) {
