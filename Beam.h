@@ -13,6 +13,7 @@ class Beam {
 		Beam(Point* _p1, Point* p2, double _r);
 		bool fail(double distance);
 		double getStress();
+		Beam* copy();
 	private: 
 		double stress;
 };
@@ -32,4 +33,12 @@ bool Beam::fail(double distance) {
 
 double Beam::getStress() {
 	return stress;
+}
+
+
+Beam* Beam::copy() {
+	Point* p1_cpy = p1->copy();
+	Point* p2_cpy = p2->copy();
+	Beam* cpy = new Beam(p1_cpy, p2_cpy, r);
+	return cpy;
 }

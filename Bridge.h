@@ -6,14 +6,15 @@
 #include <map>
 #include <vector>
 #include <cmath>
+#include <random>
 
 using namespace std;
 
 class Bridge {
 	public:
-		Bridge(); // constructor
-		Bridge(Bridge* a, Bridge* b, double k);
-		void generateBridge(int n, double k);
+		Bridge(double _r); // constructor
+		//Bridge(Bridge* a, Bridge* b, double _r);
+		void generateBridge(int n);
 		void mutateBridge(double mutation_rate);
 		void stripBridge();
 		
@@ -22,7 +23,8 @@ class Bridge {
 		double getCost();
 		set<Point*> getPoints();
 		set<Beam*> getBeams();
-
+		Bridge* copy();
+		Bridge* copy_jittered(double jitter);
 	private:
 		double distanceBetweenPoints(Point* p1, Point* p2);
 		void remove_smaller_graphs();
@@ -30,14 +32,17 @@ class Bridge {
 		set<Point*> points;
 		set<Beam*> beams;
 		map<Point*, set<Beam*> > point_to_beams;
+		double r;
 };
 
 
-Bridge::Bridge() {
+Bridge::Bridge(double _r) {
+	r = _r;
 	// Default constructor
 }
 
-Bridge::Bridge(Bridge* a, Bridge* b, double r)
+/*
+Bridge::Bridge(Bridge* a, Bridge* b, double _r)
 {	//Finds the number of points we want to keep from a bridge. 
 	//Dependant on the the number of points in the smaller bridge. 
 	int set_size = a->points.size()>b->points.size() ? b->points.size() : 
@@ -45,7 +50,7 @@ Bridge::Bridge(Bridge* a, Bridge* b, double r)
 	int kept_points = ((double) rand()/RAND_MAX) * set_size+1;
 
 	set<Point*>::iterator it = a->points.begin();
-
+	r = _r;
 	//Keep first kept_points of a;
 	for(int x = 0; x<kept_points; x++)
 	{
@@ -75,16 +80,12 @@ Bridge::Bridge(Bridge* a, Bridge* b, double r)
 			}
 		}
 	}
+}*/
 
 
 
-}
-
-
-
-void Bridge::generateBridge(int n, double k) {
+void Bridge::generateBridge(int n) {
 	// Generates n points
-	
 	points.insert(new Point(-1, 0.5, true));
 	points.insert(new Point(1, 0.5, true));
 	int count = 2;
@@ -103,7 +104,7 @@ void Bridge::generateBridge(int n, double k) {
 			if (p2 <= p1) 
 				continue;
 			double dist = distanceBetweenPoints(p1, p2);
-			if (dist < k) {
+			if (dist < r) {
 				Beam* beam = new Beam(p1, p2, dist);
 				beams.insert(beam);
 				// Add to map
@@ -290,6 +291,7 @@ double Bridge::calculateFitness() {
 	}
 	double score = avg_stress / beams.size();
 	cout << score << " w/ " << beams.size() << " beams." << endl;
+	return score;
 }
 
 double Bridge::distanceBetweenPoints(Point* p1, Point* p2) {
@@ -304,6 +306,68 @@ set<Beam*> Bridge::getBeams() {
 	return beams;
 }
 
+Bridge* Bridge::copy() {
+	Bridge* bridge_copy = new Bridge(r);
+	for (Point* p : points) {
+		Point* p_copy = p->copy();
+		bridge_copy->points.insert(p_copy);
+	}
+
+	cout << "R is " << r << endl;
+	int p1_count = 0;
+	for (Point* p1 : bridge_copy->points) {
+		int p2_count = 0;
+		for (Point* p2 : bridge_copy->points) {
+			if (p2 <= p1) 
+				continue;
+			double dist = distanceBetweenPoints(p1, p2);
+			if (dist < r) {
+				//cout << "adding beam..." << endl;
+				Beam* beam = new Beam(p1, p2, dist);
+				bridge_copy->beams.insert(beam);
+				// Add to map
+				bridge_copy->point_to_beams[p1].insert(beam);
+				bridge_copy->point_to_beams[p2].insert(beam);
+			}
+			p2_count++;
+		}
+		p1_count++;
+	}
+
+	return bridge_copy;
+}
+
+Bridge* Bridge::copy_jittered(double jitter) {
+	Bridge* bridge_copy = new Bridge(r);
+	for (Point* p : points) {
+		Point* p_copy = p->copy();
+		p_copy->x += ((double) rand() / (RAND_MAX)) * jitter - jitter / 2.0;
+		p_copy->y += ((double) rand() / (RAND_MAX)) * jitter - jitter / 2.0;
+		bridge_copy->points.insert(p_copy);
+	}
+
+	cout << "R is " << r << endl;
+	int p1_count = 0;
+	for (Point* p1 : bridge_copy->points) {
+		int p2_count = 0;
+		for (Point* p2 : bridge_copy->points) {
+			if (p2 <= p1) 
+				continue;
+			double dist = distanceBetweenPoints(p1, p2);
+			if (dist < r) {
+				Beam* beam = new Beam(p1, p2, dist);
+				bridge_copy->beams.insert(beam);
+				// Add to map
+				bridge_copy->point_to_beams[p1].insert(beam);
+				bridge_copy->point_to_beams[p2].insert(beam);
+			}
+			p2_count++;
+		}
+		p1_count++;
+	}
+
+	return bridge_copy;
+}
 
 
 #endif

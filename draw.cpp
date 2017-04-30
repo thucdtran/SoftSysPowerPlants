@@ -25,7 +25,9 @@
 void drawBridge(Bridge* bridge);
 void drawBeam(Beam* beam);
 void drawPoint(Point* p);
-void evolveBridge(vector<Bridge *> bridges);
+vector<Bridge*> evaluateBridge(vector<Bridge *> bridges);
+vector<Bridge*> evolveBridge(vector<Bridge*> bridges);
+void animateBridge(Bridge* bridge);
 
 using namespace std;
 using namespace std::this_thread; // For sleep
@@ -52,10 +54,9 @@ int main(int argc, char** argv) {
   // Window stretches from (-1,1) in the x-axis and y-axis.
 
   srand(time(NULL));
-
-  Bridge* bridge = new Bridge();
-
-  bridge->generateBridge(7, 1.0);
+  int r = 1.0;
+  Bridge* bridge = new Bridge(r);
+  bridge->generateBridge(15);
   bridge->stripBridge();
 
   //bridge->calculateForce();
@@ -65,90 +66,94 @@ int main(int argc, char** argv) {
 
   vector<Bridge*> bridges(100);
   for (int i = 0; i < 100; i++) {
-    bridges[i] = new Bridge();
-    bridges[i]->generateBridge(7, 1.0);
+    bridges[i] = new Bridge(r);
+    bridges[i]->generateBridge(15);
     bridges[i]->stripBridge();
   }
 
-  evolveBridge(bridges);
+  // start with 10 bridges
+  for (int i = 0 ; i < 10; i++) {
+    //cout << endl << "Iteration " << i << endl << endl;
+    vector<Bridge*> best_bridges = evaluateBridge(bridges); // returns 10 of the best bridges
+    vector<Bridge*> new_bridges = evolveBridge(best_bridges); // generate 100 new bridges from 10 best ones
+    bridges = new_bridges;  
 
-  /*
-  for (int i = 0; i < 10; i++) {
-    bool converged = false;
-    while (!converged) {
-      sleep_for(nanoseconds(500000));
-      //cout << "next frame...." << endl;
-      for (int i = 0; i < 5; i++) {
-        converged = bridge->calculateForce();
-      }
-      //usleep(300);
-      glClear(GL_COLOR_BUFFER_BIT);
-      drawBridge(bridge);
-      glutSwapBuffers();
-    }
-    bridge->calculateFitness();
-    cout << "Animation done, convergence found..." << endl;
-  }*/
+    cout << "Animating first bridge..." << endl;
+    animateBridge(bridges[0]);
+    int k = 0;
+    cin >> k;
+  }  
 
-/*
+  glutMainLoop();
+
+  return 0;
+}
+
+void animateBridge(Bridge* bridge) {
+  cout << "Animating bridge..." << endl;
   bool converged = false;
-  while (!converged) {
+  int iter = 0;
+  while (!converged && iter < 1000) {
     sleep_for(nanoseconds(500000));
-    //cout << "next frame...." << endl;
     for (int i = 0; i < 5; i++) {
       converged = bridge->calculateForce();
     }
-    //usleep(300);
+    iter++;
     glClear(GL_COLOR_BUFFER_BIT);
     drawBridge(bridge);
     glutSwapBuffers();
   }
-  bridge->calculateFitness();
-  cout << "Animation done, convergence found..." << endl;*/
-
-  glutMainLoop();
+  //cout << "Fitness: ";
+  //bridge->calculateFitness();
+  cout << "Animation done, convergence found..." << endl;
 }
 
-
-void evolveBridge(vector<Bridge *> bridges)
+// returns 10 best bridges
+vector<Bridge*> evaluateBridge(vector<Bridge*> bridges)
 {
-  int best_score = 0.0;
-  Bridge* best_bridge;
-  for (Bridge* bridge : bridges) {
-    bool converged = false;
-    int iter = 0;
-    while(!converged && iter<1000) {
-       for(int i = 0; i < 5; i++) {
-          converged = bridge->calculateForce();
-       }
-    }
-    int fitness_score = bridge->calculateFitness();
-    if (fitness_score > best_score) {
-      best_score = fitness_score;
-      best_bridge = bridge;
-    }
-  }
-  /*
-  vector<Bridge*> copyBridges = bridges;
+  cout << "checking " << bridges.size() << " bridges" << endl;
+  vector<Bridge*> best_bridges;
 
-  for (int x = 0; x< copyBridges.size(); x++){
-    bool converged = false;
-    int iter = 0;
-    while(!converged && iter<1000) {
-       for(int i = 0; i < 5; i++) {
-          converged = copyBridges[x]->calculateForce();
-       }
-    }
-  }
-  sort(copyBridges.begin(), copyBridges.end(), bridgeComp);
+  for (int n = 0; n < 10; n++) {
+    int best_score = 0.0;
+    Bridge* best_bridge;
 
-  for( int x = 21; x<copyBridges.size(); x++)
-  {
-      // create babies
+    for (Bridge* bridge : bridges) {
+      bool converged = false;
+      int iter = 0;
+      while(!converged && iter<1000) {
+         for(int i = 0; i < 5; i++) {
+            converged = bridge->calculateForce();
+         }
+      }
+      int fitness_score = bridge->calculateFitness();
+      if (fitness_score > best_score) {
+        best_score = fitness_score;
+        best_bridge = bridge;
+      }
+      iter++;
+    }
+    best_bridges.push_back(best_bridge);
   }
-  */
+  cout << "Done selecting 10 best bridges..." << endl << endl;
+  return best_bridges;
 }
 
+// generates 10 new bridges from each bridge
+vector<Bridge*> evolveBridge(vector<Bridge*> bridges) {
+  cout << "Generating 100 new bridges " << endl;
+  vector<Bridge*> new_bridges;
+  for (Bridge* bridge: bridges) {
+    for (int i = 0; i < 10; i++) {
+      Bridge* new_bridge = bridge->copy_jittered(0.1);
+      //cout << new_bridge->getPoints().size() << endl;
+      //cout << new_bridge->getBeams().size() << endl;
+      new_bridges.push_back(new_bridge);
+    }
+  }
+  cout << "Done creating 100 new bridges..." << endl << endl;
+  return new_bridges;
+}
 
 
 
