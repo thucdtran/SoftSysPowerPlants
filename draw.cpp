@@ -16,6 +16,7 @@
 #include "Generation.h"
 #include <chrono>
 #include <thread>
+#include <random>
 
 #ifdef __APPLE_CC__
 #include <GLUT/glut.h>
@@ -26,6 +27,9 @@
 void drawBridge(Bridge* bridge);
 void drawBeam(Beam* beam);
 void drawPoint(Point* p);
+void convergeBridge(Bridge * bridge, int road_points);
+void evolveBridge(vector<Bridge *> *bridges, int road_points,double k);
+vector<Bridge *> generateMultipleBridges(int road_points, int n, double k);
 
 using namespace std;
 using namespace std::this_thread; // For sleep
@@ -55,45 +59,29 @@ int main(int argc, char** argv) {
 
   Bridge* bridge = new Bridge();
   //bridge->generateBridge(10, .25,0);
-  int road_points = 15;
+  int road_points = 8;
   bridge->generateBridge(5, 1, road_points);
-  bridge->stripBridge();
 
   // Beam* b = new Beam(p1, p2, r);
   // bridge->distributeLoad(Beam b, pair Force);
 
   drawBridge(bridge);
   glutSwapBuffers();
-
-
-  int k = 1;
-  while (k > 0) {
-    sleep_for(nanoseconds(100000000));
-    //cin >> k;
-    //cout << "next frame...." << endl;
-    for (int i = 0; i < 5; i++) { //What is the magic number 5???
-      bridge->calculateForce(road_points);
-    }
-    //usleep(300);
+  vector<Bridge*> bridges(50);
+  bridges = generateMultipleBridges(20, 1, 1);
+  drawBridge(bridges[0]);
     glClear(GL_COLOR_BUFFER_BIT);
-    drawBridge(bridge);
+    drawBridge(bridges[0]);
     glutSwapBuffers();
-  }
-
-  bool converged = false;
-  while (!converged) {
-    sleep_for(nanoseconds(500000));
-    //cout << "next frame...." << endl;
-    for (int i = 0; i < 5; i++) {
-      converged = bridge->calculateForce(road_points);
-    }
-    //usleep(300);
+  for(int x = 0; x<1000; x++)
+   {
+    evolveBridge(&bridges, road_points,1.0);
     glClear(GL_COLOR_BUFFER_BIT);
-    drawBridge(bridge);
+    drawBridge(bridges[0]);
     glutSwapBuffers();
-  }
-  bridge->calculateFitness();
-  cout << "Animation done, convergence found..." << endl;
+    cout<<bridges[0]->get_points_size()<<"\n";
+    }
+  cout<<"done evolving\n";
 
 
   glutMainLoop();
@@ -102,51 +90,79 @@ int main(int argc, char** argv) {
 
 bool bridgeComp(Bridge* a, Bridge* b)
 {
-    return a->calculateFitness()<b->calculateFitness();
+    return a->fitness<b->fitness;
 }
 
 vector<Bridge *> generateMultipleBridges(int road_points, int n, double k){
   int quantityOfBridges = 50;
   vector <Bridge *> allBridges(quantityOfBridges);
- 
+ cout<<"test\n";
   for(int x = 0; x<quantityOfBridges; x++)
   {
     allBridges[x] = new Bridge();
     allBridges[x]->generateBridge(n, k, road_points);
     allBridges[x]->stripBridge();
   }
-  sort(allBridges.begin(), allBridges.end(), bridgeComp);
 
+  sort(allBridges.begin(), allBridges.end(), bridgeComp);
+  return allBridges;
 }
 
 
 
-void evolveBridge(vector<Bridge *> bridges, int road_points)
+void  evolveBridge(vector<Bridge *> *bridges, int road_points,double k)
 {
-  vector<Bridge*> copyBridges = bridges;
+  //Assumption is that the bridge is already sorted coming in. 
+  for(int x=30; x<45; x++)
+  {
+        Bridge* bridge = new Bridge();
+        bridge->generateBridge(5, 1, road_points);
+        (*bridges)[x] = bridge;
+  }
+  for(int x= 45; x<bridges->size(); x++)
+  {
+    int a = rand()%10;
+    int b = rand()%10;
+    (*bridges)[x] = new Bridge((*bridges)[a], (*bridges)[b], k);
+    (*bridges)[x]->mutateBridge();
+    (*bridges)[x]->stripBridge();
+  }
+   
+  vector<thread> threads;
+  for (int x = 0; x< bridges->size(); x++){
+    threads.push_back(thread(convergeBridge, (*bridges)[x], road_points));
+  }
+
+  for(int i = 0; i<bridges->size(); i++)
+  {
+    threads[i].join();
+  }
+  for(int x = 0; x<50;x++){
+    (*bridges)[x]->calculateFitness();
+  }
+  sort(bridges->begin(), bridges->end(), bridgeComp);
+  double fit = 0;
+  for(int x = 0; x<50;x++){
+
+      fit+=(*bridges)[x]->fitness;
+  }
+  cout<<fit/50.0<<"\n";
+   return;
+
+}
 
 
-  for (int x = 0; x< copyBridges.size(); x++){
+void convergeBridge(Bridge * bridge, int road_points)
+{
     bool converged = false;
     int iter = 0;
-    while(!converged && iter<10000) {
+    while(!converged && iter<2000) {
        for(int i = 0; i < 5; i++) {
-          converged = copyBridges[x]->calculateForce(road_points);
+          converged = bridge->calculateForce(road_points);
        }
+       iter++;
     }
-  }
-  sort(copyBridges.begin(), copyBridges.end(), bridgeComp);
-  for( int x = 21; x<copyBridges.size(); x++)
-  {
-    
-  }
-
 }
-
-
-
-
-
 
 
 void drawBridge(Bridge* bridge) {
@@ -157,6 +173,7 @@ void drawBridge(Bridge* bridge) {
     drawPoint(point);
   }
 }
+
 
 void drawBeam(Beam* beam) {
   glBegin(GL_LINES);
