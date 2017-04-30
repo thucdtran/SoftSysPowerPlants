@@ -38,53 +38,37 @@ using namespace std::chrono;  // For sleep
 // Initializes GLUT, the display mode, and main window; registers callbacks;
 // enters the main event loop.
 int main(int argc, char** argv) {
+    srand(time(NULL));
+    // Use a single buffered window in RGB mode (as opposed to a double-buffered
+    // window or color-index mode).
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 
-  // Use a single buffered window in RGB mode (as opposed to a double-buffered
-  // window or color-index mode).
-  glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    // Position window at (80,80)-(480,380) and give it a title.
+    glutInitWindowPosition(80, 80);
+    glutInitWindowSize(800, 600);
+    glutCreateWindow("Drawing beams");
 
-  // Position window at (80,80)-(480,380) and give it a title.
-  glutInitWindowPosition(80, 80);
-  glutInitWindowSize(800, 600);
-  glutCreateWindow("Drawing beams");
+    // Tell GLUT that whenever the main window needs to be repainted that it
+    // should call the function display().
+    glClear(GL_COLOR_BUFFER_BIT);
 
-  // Tell GLUT that whenever the main window needs to be repainted that it
-  // should call the function display().
-  glClear(GL_COLOR_BUFFER_BIT);
-
-  // Window stretches from (-1,1) in the x-axis and y-axis.
-
-  srand(time(NULL));
-
-  Bridge* bridge = new Bridge();
-  //bridge->generateBridge(10, .25,0);
-  int road_points = 8;
-  bridge->generateBridge(5, 1, road_points);
-
-  // Beam* b = new Beam(p1, p2, r);
-  // bridge->distributeLoad(Beam b, pair Force);
-
-  drawBridge(bridge);
-  glutSwapBuffers();
-  vector<Bridge*> bridges(50);
-  bridges = generateMultipleBridges(20, 1, 1);
-  drawBridge(bridges[0]);
+    vector<Bridge*> bridges(50);
+    bridges = generateMultipleBridges(20, 1, 1);
+    drawBridge(bridges[0]);
     glClear(GL_COLOR_BUFFER_BIT);
     drawBridge(bridges[0]);
     glutSwapBuffers();
-  for(int x = 0; x<1000; x++)
-   {
-    evolveBridge(&bridges, road_points,1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-    drawBridge(bridges[0]);
-    glutSwapBuffers();
-    cout<<bridges[0]->get_points_size()<<"\n";
+  
+    for(int x = 0; x<1000; x++)
+    {
+        evolveBridge(&bridges, road_points,1);
+        glClear(GL_COLOR_BUFFER_BIT);
+        drawBridge(bridges[0]);
+        glutSwapBuffers();
     }
-  cout<<"done evolving\n";
-
-
-  glutMainLoop();
+    cout<<"done evolving\n";
+    glutMainLoop();
 }
 
 
@@ -116,7 +100,7 @@ void  evolveBridge(vector<Bridge *> *bridges, int road_points,double k)
   for(int x=30; x<45; x++)
   {
         Bridge* bridge = new Bridge();
-        bridge->generateBridge(5, 1, road_points);
+        bridge->generateBridge(5, k, road_points);
         (*bridges)[x] = bridge;
   }
   for(int x= 45; x<bridges->size(); x++)
