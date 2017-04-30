@@ -5,24 +5,23 @@ using namespace std;
 
 
 class Beam {
-	public:
-		Point* p1;
-		Point* p2;
-		double k;
-		double r;
-		double yield_strength;
-		double cost_per_meter;
-		double weight;
-		Beam(Point* _p1, Point* p2, double _r);
-		bool fail(double distance);
-		double get_cost();
-		double getStress();
-		void assign_mat_properties(string material_name);
-		short beamType;
-		Beam(Point* _p1, Point* _p2, double _r, short _beamType, string material_name);
+    public:
+        Point* p1;
+        Point* p2;
+        double k;
+        double r;
+        double yield_strength;
+        double cost_per_meter;
+        double weight;
+        Beam(Point* _p1, Point* p2, double _r);
+        bool fail(double distance);
+        double getStress();
+        void assign_mat_properties(string material_name);
+        short beamType;
+        Beam(Point* _p1, Point* _p2, double _r, short _beamType, string material_name);
 
-	private: 
-		double stress;
+    private: 
+        double stress;
 };
 
 Beam::Beam(Point* _p1, Point* _p2, double _r) {
@@ -34,64 +33,58 @@ Beam::Beam(Point* _p1, Point* _p2, double _r) {
 }
 
 bool Beam::fail(double distance) {
-	stress = 1 - (abs(distance) - r) / 0.02;
-	return abs(distance) > (r + yield_strength);
+    stress = 1 - (abs(distance) - r) / 0.02;
+    return abs(distance) > (r + yield_strength);
 }
 
 double Beam::getStress() {
-	return stress;
+    return stress;
   beamType = 0;
 }
 
 
-double Beam::get_cost(){
-	return 0;
-}
-
-Beam::Beam(Point* _p1, Point* _p2, double _r, short _beamType)
-
 void Beam::assign_mat_properties(string material_name){
-	struct material {
+    struct material {
         double weight;
         double yield_strength;
         double k;
         double cost_per_meter;
     };
-	double cross_sectional_area = 0.0125;//cross sectional area of I-Beam
+    double cross_sectional_area = 0.0125;//cross sectional area of I-Beam
     double cost_factor = 50.50;//accounts for beam size and estimate of manufacturing costs
-	
-	material A992;
-    	A992.weight = 7850*cross_sectional_area;
-    	A992.yield_strength = 345.0;
-    	A992.k = 200.0;
-    	A992.cost_per_meter = 1.51*cost_factor;
+    
+    material A992;
+        A992.weight = 7850*cross_sectional_area;
+        A992.yield_strength = 345.0;
+        A992.k = 200.0;
+        A992.cost_per_meter = 1.51*cost_factor;
 
- 	material Low_Carbon_Steel;
-    	Low_Carbon_Steel.weight = 7860*cross_sectional_area;
-    	Low_Carbon_Steel.yield_strength = 350.0;
-    	Low_Carbon_Steel.k = 200.0;
-    	Low_Carbon_Steel.cost_per_meter = 1.0*cost_factor;
-	
-	material Cold_Rolled_Steel;
-    	Cold_Rolled_Steel.weight = 7920*cross_sectional_area;
-    	Cold_Rolled_Steel.yield_strength = 500.0;
-    	Cold_Rolled_Steel.k = 190.0;
-    	Cold_Rolled_Steel.cost_per_meter = 1.51*cost_factor;
+    material Low_Carbon_Steel;
+        Low_Carbon_Steel.weight = 7860*cross_sectional_area;
+        Low_Carbon_Steel.yield_strength = 350.0;
+        Low_Carbon_Steel.k = 200.0;
+        Low_Carbon_Steel.cost_per_meter = 1.0*cost_factor;
+    
+    material Cold_Rolled_Steel;
+        Cold_Rolled_Steel.weight = 7920*cross_sectional_area;
+        Cold_Rolled_Steel.yield_strength = 500.0;
+        Cold_Rolled_Steel.k = 190.0;
+        Cold_Rolled_Steel.cost_per_meter = 1.51*cost_factor;
 
-	material Cast_Iron;
-    	Cast_Iron.weight = 7300*cross_sectional_area;
-    	Cast_Iron.yield_strength = 230.0;
-    	Cast_Iron.k = 190.0;
-    	Cast_Iron.cost_per_meter = 1.51*cost_factor;
+    material Cast_Iron;
+        Cast_Iron.weight = 7300*cross_sectional_area;
+        Cast_Iron.yield_strength = 230.0;
+        Cast_Iron.k = 190.0;
+        Cast_Iron.cost_per_meter = 1.51*cost_factor;
 
     material Aluminum;
-    	Aluminum.weight = 2710*cross_sectional_area;
-    	Aluminum.yield_strength = 255.0;
-    	Aluminum.k = 69.0;
-    	Aluminum.cost_per_meter = 4.01*cost_factor;
+        Aluminum.weight = 2710*cross_sectional_area;
+        Aluminum.yield_strength = 255.0;
+        Aluminum.k = 69.0;
+        Aluminum.cost_per_meter = 4.01*cost_factor;
 
 
-	map<string, material> material_properties;
+    map<string, material> material_properties;
     // Inserting data in std::map
     //based on HEB 260B I-beam, cross sectional area is 0.0125 m^2
     //weight per m^2 = density * volume per meter
@@ -112,7 +105,7 @@ void Beam::assign_mat_properties(string material_name){
     material_properties["Phosphor Bronze Cold-Rolled"] = {8860*area, 520.0, 110.0,12*cost_factor};
     material_properties["Magnesium Alloy"] = {1800*area, 275.0, 45.0,7.3*cost_factor};
     material_properties["Titanium Alloy"] = {4460*area, 825.0, 114.0,30.9*cost_factor};
-	*/
+    */
 
     material search_result = material_properties[material_name];
     weight = search_result.weight;
@@ -122,14 +115,13 @@ void Beam::assign_mat_properties(string material_name){
 }
 
 Beam::Beam(Point* _p1, Point* _p2, double _r, short _beamType, string material_name)
-
 {
-	p1 = _p1;
-	p2 = _p2;
-	k = 100000.0;
-	r = _r;
-	beamType = _beamType;
-	yield_strength = 0.02;
-	assign_mat_properties(material_name);
+    p1 = _p1;
+    p2 = _p2;
+    k = 100000.0;
+    r = _r;
+    beamType = _beamType;
+    yield_strength = 0.02;
+    assign_mat_properties(material_name);
 
 }

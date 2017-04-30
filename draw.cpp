@@ -8,6 +8,7 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <set>
 #include <map>
@@ -15,6 +16,7 @@
 #include "Generation.h"
 #include <chrono>
 #include <thread>
+#include <random>
 
 #ifdef __APPLE_CC__
 #include <GLUT/glut.h>
@@ -25,8 +27,9 @@
 void drawBridge(Bridge* bridge);
 void drawBeam(Beam* beam);
 void drawPoint(Point* p);
-void simulate(Bridge* bridge, int road_points);
-void gradientDescent(Bridge* bridge, int road_points);
+void convergeBridge(Bridge * bridge, int road_points);
+void evolveBridge(vector<Bridge *> *bridges, int road_points,double k);
+vector<Bridge *> generateMultipleBridges(int road_points, int n, double k);
 
 using namespace std;
 using namespace std::this_thread; // For sleep
@@ -35,93 +38,118 @@ using namespace std::chrono;  // For sleep
 // Initializes GLUT, the display mode, and main window; registers callbacks;
 // enters the main event loop.
 int main(int argc, char** argv) {
+    srand(time(NULL));
+    // Use a single buffered window in RGB mode (as opposed to a double-buffered
+    // window or color-index mode).
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 
-  // Use a single buffered window in RGB mode (as opposed to a double-buffered
-  // window or color-index mode).
-  glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    // Position window at (80,80)-(480,380) and give it a title.
+    glutInitWindowPosition(80, 80);
+    glutInitWindowSize(800, 600);
+    glutCreateWindow("Drawing beams");
 
-  // Position window at (80,80)-(480,380) and give it a title.
-  glutInitWindowPosition(80, 80);
-  glutInitWindowSize(800, 600);
-  glutCreateWindow("Drawing beams");
-
-  // Tell GLUT that whenever the main window needs to be repainted that it
-  // should call the function display().
-  glClear(GL_COLOR_BUFFER_BIT);
-
-  // Window stretches from (-1,1) in the x-axis and y-axis.
-
-  srand(time(NULL));
-  Bridge* bridge = new Bridge();
-  Bridge* best_bridge = bridge;
-  double old_score = bridge->calculateFitness();
-  double best_score = 20;
-  int best_road_points = 0;
-  for (int i = 0; i <30; ++i)
-  {
-      bridge = new Bridge();
-
-      //bridge->generateBridge(10, .25,0);
-      int road_points = 15;
-      
-      bridge->generateBridge(20, 1, road_points);
-      printf("%f\n", bridge->getCost());
-      bridge->stripBridge();
-      gradientDescent(bridge, road_points);
-      // Beam* b = new Beam(p1, p2, r);
-      // bridge->distributeLoad(Beam b, pair Force);
-
-      drawBridge(bridge);
-      glutSwapBuffers();
-
-    simulate(bridge, road_points);
-
-    if(bridge->calculateFitness() < best_score) {
-      best_bridge = bridge;
-      best_road_points = road_points;
-      best_score = bridge->calculateFitness();
-    }
-    old_score = bridge->calculateFitness();
-    cout << "Animation done, convergence found..." << endl;
-
-  }
-  cout << "Best Score :" << best_score << endl;
-  simulate(best_bridge, best_road_points);
-
-
-  glutMainLoop();
-}
-
-void simulate(Bridge* bridge, int road_points){
-  double time_start  = time(NULL);
-  double time_elapsed = 0;
-  bool converged = false;
-  while (!converged) {
-    sleep_for(nanoseconds(500000));
-    time_elapsed = time(NULL) - time_start;
-    //cout << "next frame...." << endl;
-    for (int i = 0; i < 5; i++) {
-      converged = bridge->calculateForce(road_points);
-      if (time_elapsed > 2) {
-        converged = 1;
-      }
-    }
-    //usleep(300);
+    // Tell GLUT that whenever the main window needs to be repainted that it
+    // should call the function display().
     glClear(GL_COLOR_BUFFER_BIT);
-    drawBridge(bridge);
+
+
+
+    vector<Bridge*> bridges(50);
+    bridges = generateMultipleBridges(15, 1, 1);
+    drawBridge(bridges[0]);
+    glClear(GL_COLOR_BUFFER_BIT);
+    drawBridge(bridges[0]);
     glutSwapBuffers();
+  
+    for(int x = 0; x<1000; x++)
+    {
+        evolveBridge(&bridges, 15,1);
+        glClear(GL_COLOR_BUFFER_BIT);
+        drawBridge(bridges[0]);
+        glutSwapBuffers();
+    }
+    cout<<"done evolving\n";
+    glutMainLoop();
+}
+
+
+bool bridgeComp(Bridge* a, Bridge* b)
+{
+    return a->fitness<b->fitness;
+}
+
+vector<Bridge *> generateMultipleBridges(int road_points, int n, double k){
+  int quantityOfBridges = 50;
+  vector <Bridge *> allBridges(quantityOfBridges);
+ cout<<"test\n";
+  for(int x = 0; x<quantityOfBridges; x++)
+  {
+    allBridges[x] = new Bridge();
+    allBridges[x]->generateBridge(n, k, road_points);
+    allBridges[x]->stripBridge();
   }
+
+  sort(allBridges.begin(), allBridges.end(), bridgeComp);
+  return allBridges;
+}
+
+
+
+void  evolveBridge(vector<Bridge *> *bridges, int road_points,double k)
+{
+  //Assumption is that the bridge is already sorted coming in. 
+  for(int x=30; x<45; x++)
+  {
+        Bridge* bridge = new Bridge();
+        bridge->generateBridge(5, k, road_points);
+        (*bridges)[x] = bridge;
+  }
+  for(int x= 45; x<bridges->size(); x++)
+  {
+    int a = rand()%10;
+    int b = rand()%10;
+    (*bridges)[x] = new Bridge((*bridges)[a], (*bridges)[b], k);
+    (*bridges)[x]->mutateBridge();
+    (*bridges)[x]->stripBridge();
+  }
+   
+  vector<thread> threads;
+  for (int x = 0; x< bridges->size(); x++){
+    threads.push_back(thread(convergeBridge, (*bridges)[x], road_points));
+  }
+
+  for(int i = 0; i<bridges->size(); i++)
+  {
+    threads[i].join();
+  }
+  for(int x = 0; x<50;x++){
+    (*bridges)[x]->calculateFitness();
+  }
+  sort(bridges->begin(), bridges->end(), bridgeComp);
+  double fit = 0;
+  for(int x = 0; x<50;x++){
+
+      fit+=(*bridges)[x]->fitness;
+  }
+  cout<<fit/50.0<<"\n";
+   return;
 
 }
 
-void gradientDescent(Bridge* bridge, int road_points){
-  Bridge bridge_copy = bridge;
-  for (Point* p : bridge_copy->points) {
-    simulate(bridge_copy);
-    p.x += .001;
-  }
+
+void convergeBridge(Bridge * bridge, int road_points)
+{
+    bool converged = false;
+    int iter = 0;
+    while(!converged && iter<2000) {
+       for(int i = 0; i < 5; i++) {
+          converged = bridge->calculateForce(road_points);
+       }
+       iter++;
+    }
 }
+
 
 void drawBridge(Bridge* bridge) {
   for (Beam* beam : bridge->getBeams()) {
@@ -131,6 +159,7 @@ void drawBridge(Bridge* bridge) {
     drawPoint(point);
   }
 }
+
 
 void drawBeam(Beam* beam) {
   glBegin(GL_LINES);
