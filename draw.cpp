@@ -56,6 +56,7 @@ int main(int argc, char** argv) {
   //bridge->generateBridge(10, .25,0);
   int road_points = 15;
   bridge->generateBridge(20, 1, road_points);
+  printf("%f\n", bridge->getCost());
   bridge->stripBridge();
 
   // Beam* b = new Beam(p1, p2, r);
