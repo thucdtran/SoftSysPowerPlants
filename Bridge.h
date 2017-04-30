@@ -6,9 +6,15 @@
 #include <map>
 #include <vector>
 #include <cmath>
-#include <armadillo>
 using namespace std;
-using namespace arma;
+
+struct csorter
+{
+	bool operator()(const Point* a, const Point* b) const
+	{
+		return a->x<b->x;
+	}
+};
 
 
 
@@ -26,27 +32,39 @@ class Bridge {
 		pair<pair<double, double>, pair<double, double>> distributeLoad(Beam b, pair<double, double> Force, Point forcePoint);
 
 		double calculateFitness();
-
 		void moveLoadAlongBeam(Beam b, pair<double, double> Force);
 		double getCost();
-		set<Point*> getPoints();
+		set<Point*,csorter> getPoints();
 		set<Beam*> getBeams();
-
+		double fitness;
+		int get_points_size();
 	private:
 		double distanceBetweenPoints(Point* p1, Point* p2);
 		void remove_smaller_graphs();
 		void _color_connected(Point* p, int color, map<Point*, int> *point_colors, map<Point*, bool> *visited, map<int, int>*color_count);
-		set<Point*> points;
+		set<Point*,csorter> points;
 		set<Beam*> beams;
 		map<Point*, set<Beam*> > point_to_beams;
+		vector<Point *> ordered_points;
+		double min_beam_distance; 
 };
+
+
+int Bridge::get_points_size()
+{
+	return points.size();
+}
+
 
 Bridge::Bridge() {
 	// Default constructor
 }
 
 Bridge::Bridge(Bridge* a, Bridge* b, double r)
-{	//Finds the number of points we want to keep from a bridge. 
+{	
+	fitness = 99999999999999;
+	min_beam_distance = r;
+	//Finds the number of points we want to keep from a bridge. 
 	//Dependant on the the number of points in the smaller bridge. 
 	int set_size = a->points.size()>b->points.size() ? b->points.size() : 
 													   a->points.size();
@@ -83,14 +101,16 @@ Bridge::Bridge(Bridge* a, Bridge* b, double r)
 			}
 		}
 	}
+	stripBridge();
+//	cout<<beams.size()<<"\n";
 
-
-
+//	cout<<"done constructing bridge\n";
 }
 
 
-
 void Bridge::generateBridge(int n, double k) {
+	min_beam_distance = k;
+	fitness = 99999999999999;
 	// Generates n points
 	points.insert(new Point(-1, 0.5, true));
 	points.insert(new Point(1, 0.5, true));
@@ -117,7 +137,7 @@ void Bridge::generateBridge(int n, double k) {
 		// printf("x = %f\n", x);
 		// y = round(mesh_fine*y)/mesh_fine;
 
-		printf("point = %f, %f\n", (grid_mesh[index])->x, (grid_mesh[index])->y);
+//		printf("point = %f, %f\n", (grid_mesh[index])->x, (grid_mesh[index])->y);
 		points.insert(grid_mesh[index]);
 		grid_mesh.erase(grid_mesh.begin() + index);
 	}
@@ -141,9 +161,12 @@ void Bridge::generateBridge(int n, double k) {
 		}
 		p1_count++;
 	}
+	stripBridge();
+
 }
 
 void Bridge::generateBridge(int n, double k, int roadPoints = 0) {
+	min_beam_distance = k;
 	// Generates n points
 	Point* firstPoint =new Point(-1, 0.5, true);
 	Point* lastPoint = new Point(1, 0.5, true) ;
@@ -153,6 +176,7 @@ void Bridge::generateBridge(int n, double k, int roadPoints = 0) {
 	double fixedY1 = .5;
 	double fixedX2 = 1;
 	double fixedY2 = .5;
+	string material_name = "ASTM A992 Steel";
 
 
 	int mesh_fine = 5; //Determines the grid mesh fineness.
@@ -181,7 +205,7 @@ void Bridge::generateBridge(int n, double k, int roadPoints = 0) {
 
 	for (int i = 0; i < n; i++) {
 	int index = rand() % grid_mesh.size();
-	
+
 	points.insert(grid_mesh[index]);
 	grid_mesh.erase(grid_mesh.begin() + index);
 
@@ -197,7 +221,7 @@ void Bridge::generateBridge(int n, double k, int roadPoints = 0) {
 			double dist = distanceBetweenPoints(p1, p2);
 			if (dist < k) {
 				if(((p1->fixed||p2->fixed)&&(p1->road||p2->road))||(p1->road &&p2->road)){
-					Beam* beam = new Beam(p1, p2, dist, 1);
+					Beam* beam = new Beam(p1, p2, dist, 1, material_name);
 					beams.insert(beam);
 					// Add to map
 					point_to_beams[p1].insert(beam);
@@ -216,6 +240,8 @@ void Bridge::generateBridge(int n, double k, int roadPoints = 0) {
 		}
 		p1_count++;
 	}
+	stripBridge();
+
 }
 
 void Bridge::mutateBridge(double mutation_rate = .25){
@@ -227,20 +253,21 @@ void Bridge::mutateBridge(double mutation_rate = .25){
 		advance(it, rand()%points.size());
 		//Tries to mutate the x and y position of a random point by up 
 		//to 50%, limited to +-1 in order to stay on screen
-//		double new_x = (*it)->x*(((double) rand()/RAND_MAX-.5)+1);
-//		double new_y = (*it)->y*(((double) rand()/RAND_MAX-.5)+1);
-//		if(new_x>1)
-//			new_x = .8;
-//		if(new_x<-1)
-//			new_x = -.8;
-//		if(new_y>1)
-//			new_y = .8;
-//		if(new_y<-1)
-//			new_y = -.8;
+		double new_x = (*it)->x*(((double) rand()/RAND_MAX-.5)+1)*.02;
+		double new_y = (*it)->y*(((double) rand()/RAND_MAX-.5)+1)*.02;
+		if(new_x>1)
+			new_x = .8;
+		if(new_x<-1)
+			new_x = -.8;
+		if(new_y>1)
+			new_y = .8;
+		if(new_y<-1)
+			new_y = -.8;
 
-//		(*it)->x = new_x;
-//		(*it)->y = new_y;
+		(*it)->x = new_x;
+		(*it)->y = new_y;
 	}
+	stripBridge();
 
 
 }
@@ -333,7 +360,11 @@ void Bridge::remove_smaller_graphs(){
 
 double Bridge::getCost()
 {
-	return 0;
+	double cost = 0;
+	for (Beam* beam : beams) {
+		cost = distanceBetweenPoints(beam->p1, beam->p2);
+	}
+	return cost;
 }
 
 
@@ -354,11 +385,11 @@ bool Bridge::calculateForce(int road_points, pair<double, double> Force = pair<d
 		
 		if (p->road) {
 				if (road_counter < road_points) {
-					printf("%d\n", int(round(progress*road_points)));
-					printf("Road_Counter = %d\n", road_counter);
+					//printf("%d\n", int(round(progress*road_points)));
+					//printf("Road_Counter = %d\n", road_counter);
 					if (road_counter == int(round(progress*road_points)))
 					{	
-						printf("AYYYYYYYYYYYYYYYYY\n");
+					//	printf("AYYYYYYYYYYYYYYYYY\n");
 						Fy = Force.second;
 					} else {
 						Fy = 0;
@@ -379,7 +410,7 @@ bool Bridge::calculateForce(int road_points, pair<double, double> Force = pair<d
 			pair<double, double> unit_vector = make_pair((p->x - p_other->x) / dist, (p->y - p_other->y)/ dist);
 			
 			if (beam->fail(dist)) {
-				cout << "Beam failed!" << endl;
+			//	cout << "Beam failed!" << endl;
 			}
 			double F = beam->k * (beam->r - dist);
 			Fx += F * unit_vector.first;
@@ -415,12 +446,12 @@ bool Bridge::calculateForce(int road_points, pair<double, double> Force = pair<d
 
 		p->x += dx;
 		p->y += dy;
-		if (abs(dx) > 0.000001 || abs(dy) > 0.000001) {
+		if (abs(dx) > 0.0001 || abs(dy) > 0.0001) {
 			converged = false;
 		}
 	}
 	progress += .001;
-	//cout << "Converged: " << converged << endl;
+//	cout << "Converged: " << converged << endl;
 	return converged;
 }
 
@@ -428,10 +459,11 @@ bool Bridge::calculateForce(int road_points, pair<double, double> Force = pair<d
 double Bridge::calculateFitness() {
 	double avg_stress = 0.0;
 	for (Beam* beam : beams) {
-		avg_stress += beam->getStress();
+		avg_stress += (beam->getStress())*(beam->getStress());
 	}
 	double score = avg_stress / beams.size();
-	cout << "Fitness score: " << score << " w/ " << beams.size() << " beams." << endl;
+	fitness = score;
+//	cout << "Fitness score: " << score << " w/ " << beams.size() << " beams." << endl;
 }
 
 pair<pair<double, double>, pair<double, double>> Bridge::distributeLoad(Beam b, pair<double, double> Force, Point forcePoint) {
@@ -454,17 +486,13 @@ void Bridge::moveLoadAlongBeam(Beam b, pair<double, double> Force) {
 }
 
 void Bridge::calculateForceMatrix() {
-	mat A = randu<mat>(4,5);
-  	mat B = randu<mat>(4,5);
-  	
-  	cout << A*B.t() << endl;
   }
 
 double Bridge::distanceBetweenPoints(Point* p1, Point* p2) {
 	return pow(pow((p1->x - p2->x), 2) + pow(p1->y - p2->y, 2), 0.5); 
 }
 
-set<Point*> Bridge::getPoints() {
+set<Point*, csorter> Bridge::getPoints() {
 	return points;
 }
 
