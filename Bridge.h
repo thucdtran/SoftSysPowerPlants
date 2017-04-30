@@ -1,3 +1,9 @@
+//This contains the Bridge class, and all of the
+//methods of Bridge. A bridge represents the colection of 
+//points and beams and all of the information needed to simulate
+//and analyze a bridge.
+
+
 #ifndef BRIDGE_H
 #define BRIDGE_H
 
@@ -8,7 +14,8 @@
 #include <cmath>
 using namespace std;
 
-struct csorter
+struct csorter  //This is the comparator function for Points, sorting
+		//them based on their distance from the left.
 {
 	bool operator()(const Point* a, const Point* b) const
 	{
@@ -28,11 +35,9 @@ class Bridge {
 		void stripBridge();
 		
 		bool calculateForce(int road_points, pair<double, double>Force);
-		void calculateForceMatrix();
 		pair<pair<double, double>, pair<double, double>> distributeLoad(Beam b, pair<double, double> Force, Point forcePoint);
 
 		double calculateFitness();
-		void moveLoadAlongBeam(Beam b, pair<double, double> Force);
 		double getCost();
 		set<Point*,csorter> getPoints();
 		set<Beam*> getBeams();
@@ -46,11 +51,11 @@ class Bridge {
 		set<Beam*> beams;
 		map<Point*, set<Beam*> > point_to_beams;
 		vector<Point *> ordered_points;
-		double min_beam_distance; 
+		double max_beam_distance; 
 };
 
 
-int Bridge::get_points_size()
+int Bridge::get_points_size() //Wrapper function
 {
 	return points.size();
 }
@@ -60,10 +65,15 @@ Bridge::Bridge() {
 	// Default constructor
 }
 
-Bridge::Bridge(Bridge* a, Bridge* b, double r)
-{	
-	fitness = 99999999999999;
-	min_beam_distance = r;
+
+//Initialization of bridge based
+//by using crossover of two bridges. 
+//r is the max beam distance
+Bridge::Bridge(Bridge* a, Bridge* b, double r) 
+{
+	fitness = 99999999999999; //We minimize fitness, so initial is set to an 
+				  //arbitrary high number
+	max_beam_distance = r;
 	//Finds the number of points we want to keep from a bridge. 
 	//Dependant on the the number of points in the smaller bridge. 
 	int set_size = a->points.size()>b->points.size() ? b->points.size() : 
@@ -102,14 +112,12 @@ Bridge::Bridge(Bridge* a, Bridge* b, double r)
 		}
 	}
 	stripBridge();
-//	cout<<beams.size()<<"\n";
-
-//	cout<<"done constructing bridge\n";
 }
 
-
+//This is the function to initialize a bridge of n points, where 
+//the maximum distance of the beams is k.
 void Bridge::generateBridge(int n, double k) {
-	min_beam_distance = k;
+	max_beam_distance = k;
 	fitness = 99999999999999;
 	// Generates n points
 	points.insert(new Point(-1, 0.5, true));
@@ -165,8 +173,11 @@ void Bridge::generateBridge(int n, double k) {
 
 }
 
+//This generates a bridge with a road, which has a special material.
+//The roadPoints variable indicates the number of road points, and the 
+//n variable indicates non-road points, and k is the maximum beam distance.
 void Bridge::generateBridge(int n, double k, int roadPoints = 0) {
-	min_beam_distance = k;
+	max_beam_distance = k;
 	// Generates n points
 	Point* firstPoint =new Point(-1, 0.5, true);
 	Point* lastPoint = new Point(1, 0.5, true) ;
@@ -244,8 +255,10 @@ void Bridge::generateBridge(int n, double k, int roadPoints = 0) {
 
 }
 
+
+//Randomly changes the position of some set of points in the bridge
 void Bridge::mutateBridge(double mutation_rate = .25){
-	//Randomly changes the position of some set of points in the bridge
+	
 	int mutated_points = mutation_rate*points.size();
 	for(int x = 0; x<mutated_points; x++)
 	{
@@ -272,6 +285,7 @@ void Bridge::mutateBridge(double mutation_rate = .25){
 
 }
 
+//Removes disconnected parts of the bridge
 void Bridge::stripBridge()
 {
 	for (Point* p : points) {
@@ -286,7 +300,8 @@ void Bridge::stripBridge()
 	remove_smaller_graphs();
 }
 
-
+//Colors the bridge based on stress and maximum stress in each of the
+//beams.
 void Bridge::_color_connected(Point* p, int color, map<Point*, int> *point_colors, map<Point*, bool> *visited, map<int, int> *color_count)
 {
 	//Colors the point as the given color, and increments associated count
@@ -307,6 +322,7 @@ void Bridge::_color_connected(Point* p, int color, map<Point*, int> *point_color
 
 }
 
+//Helper function to strip bridges
 void Bridge::remove_smaller_graphs(){
 	map<Point*, int > point_color;
 	map<Point*, bool> visited;
@@ -357,7 +373,8 @@ void Bridge::remove_smaller_graphs(){
 }
 
 
-
+//returns the cost of the bridge, which adds up the 
+//lengths of all of the beams. 
 double Bridge::getCost()
 {
 	double cost = 0;
@@ -368,7 +385,9 @@ double Bridge::getCost()
 }
 
 
-
+//Simulates a single step of gradient descent in order to approach a stable
+//solution for the forces. Returns converged if the solution is within a
+//certain tolerance
 bool Bridge::calculateForce(int road_points, pair<double, double> Force = pair<double, double>(0,-50000)) {
 	bool converged = true;
 	static double progress = 0; //For now, this is the progress of the force across
@@ -478,15 +497,8 @@ pair<pair<double, double>, pair<double, double>> Bridge::distributeLoad(Beam b, 
 
 }
 
-void Bridge::moveLoadAlongBeam(Beam b, pair<double, double> Force) {
-	//This takes a beam and a force, and moves the force linearly
-	//along the beam, returning a list of forces on each of the points
-	//of the beam for all of the forces.
 
-}
 
-void Bridge::calculateForceMatrix() {
-  }
 
 double Bridge::distanceBetweenPoints(Point* p1, Point* p2) {
 	return pow(pow((p1->x - p2->x), 2) + pow(p1->y - p2->y, 2), 0.5); 
