@@ -6,9 +6,7 @@
 #include <map>
 #include <vector>
 #include <cmath>
-#include <armadillo>
 using namespace std;
-using namespace arma;
 
 struct csorter
 {
@@ -178,6 +176,7 @@ void Bridge::generateBridge(int n, double k, int roadPoints = 0) {
 	double fixedY1 = .5;
 	double fixedX2 = 1;
 	double fixedY2 = .5;
+	string material_name = "ASTM A992 Steel";
 
 
 	int mesh_fine = 5; //Determines the grid mesh fineness.
@@ -222,7 +221,7 @@ void Bridge::generateBridge(int n, double k, int roadPoints = 0) {
 			double dist = distanceBetweenPoints(p1, p2);
 			if (dist < k) {
 				if(((p1->fixed||p2->fixed)&&(p1->road||p2->road))||(p1->road &&p2->road)){
-					Beam* beam = new Beam(p1, p2, dist, 1);
+					Beam* beam = new Beam(p1, p2, dist, 1, material_name);
 					beams.insert(beam);
 					// Add to map
 					point_to_beams[p1].insert(beam);
@@ -487,10 +486,6 @@ void Bridge::moveLoadAlongBeam(Beam b, pair<double, double> Force) {
 }
 
 void Bridge::calculateForceMatrix() {
-	mat A = randu<mat>(4,5);
-  	mat B = randu<mat>(4,5);
-  	
-  	cout << A*B.t() << endl;
   }
 
 double Bridge::distanceBetweenPoints(Point* p1, Point* p2) {
