@@ -21,5 +21,9 @@ For a complete install on ubuntu, run:
 
 To run, type `make` in the top directory.
 
+Afterwhich, you can run the program with:
+	./draw
+And wait as you see the bridge start to evolve!
+
 ## License:
 [MIT License](LICENSE)
