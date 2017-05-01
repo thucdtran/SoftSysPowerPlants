@@ -6,7 +6,7 @@ We wanted to automate part of the bridge generation process. What an experienced
 ### [Final Report Website](https://thuctran289.github.io/SoftSysPowerPlants/)
 
 ## Authors:
-[Thuc Tran](https://github.com/thuctran289), [David Papp](https://github.com/davpapp), [Philip Seger](https://github.com/segerphilip), [Sarah Walters](https://github.com/sarahwalters)
+[Thuc Tran](https://github.com/thuctran289), [David Papp](https://github.com/davpapp), [Max Schommer](https://github.com/maxschommer), [Joseph Lee](https://github.com/JosephLee19)
 
 ## Getting started:
 Required packages (tested on Ubuntu 14.04):
