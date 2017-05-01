@@ -12,8 +12,8 @@
 #include <vector>
 #include <set>
 #include <map>
+#include "Bridge.h"
 #include <string>
-#include "Generation.h"
 #include <chrono>
 #include <thread>
 #include <random>
@@ -155,7 +155,7 @@ void convergeBridge(Bridge * bridge, int road_points)
     bool converged = false;
     int iter = 0;
     //Only does 2000 iterations here due to time constraint.
-    while(!converged && iter<2000) {
+    while(!converged && iter<1000) {
        for(int i = 0; i < 5; i++) {
           converged = bridge->calculateForce(road_points);
        }
