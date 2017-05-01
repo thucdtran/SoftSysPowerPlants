@@ -30,13 +30,13 @@ We created a graphic display for debugging. This display illustrates the functio
 
 Below are some examples of bridges generated with 10 and 15 points. The animation runs until convergence is found. Note which beams are under the most strain. 
 
-![result1.gif](reports/resources/demo1.gif)
-![result2.gif](reports/resources/demo2.gif)
+![result1.gif](resources/demo1.gif)
+![result2.gif](resources/demo2.gif)
 
 
 The results of our genetic algorithm over several iterations are shown below:
 
-![genetic_algorithm1.gif](reports/resources/evolve1.gif)
-![genetic_algorithm2.gif](reports/resources/evolve2.gif)
+![genetic_algorithm1.gif](resources/evolve1.gif)
+![genetic_algorithm2.gif](resources/evolve2.gif)
 
 Note that the bridges gradually start to resemble an actual bridge. These results are encouraging. There are still beams that break, but this is because our fitness evaluation does not explicitly penalize breaking versus simply high stress.
