@@ -5,6 +5,7 @@ physical characteristics and two Points.
 
 #include "Point.h"
 #include <cmath>
+#include <map>
 #include <string.h>
 using namespace std;
 
@@ -24,7 +25,9 @@ class Beam {
         void assign_mat_properties(string material_name);
         short beamType;
         Beam(Point* _p1, Point* _p2, double _r, short _beamType, string material_name);
+        Beam(Point* _p1, Point* _p2, double _r, short _beamType);
 
     private: 
         double stress;
 };
+

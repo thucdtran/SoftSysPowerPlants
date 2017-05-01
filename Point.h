@@ -1,6 +1,7 @@
 /*
 The point class represents a pin in the structure of the bridge.
 */
+#include <string>
 using namespace std;
 
 class Point {
