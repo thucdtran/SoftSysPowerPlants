@@ -202,8 +202,8 @@ void Bridge::generateBridge(int n, double k, int roadPoints = 0) {
 
 
 //Randomly changes the position of some set of points in the bridge
-void Bridge::mutateBridge(double mutation_rate = .25){
-	
+void Bridge::mutateBridge(){
+	double mutation_rate = .25;
 	int mutated_points = mutation_rate*points.size();
 	for(int x = 0; x<mutated_points; x++)
 	{
@@ -333,7 +333,7 @@ double Bridge::getCost()
 //Simulates a single step of gradient descent in order to approach a stable
 //solution for the forces. Returns converged if the solution is within a
 //certain tolerance
-bool Bridge::calculateForce(int road_points, pair<double, double> Force = pair<double, double>(0,-50000)) {
+bool Bridge::calculateForce(int road_points, pair<double, double> Force) {
 	bool converged = true;
 	static double progress = 0; //For now, this is the progress of the force across
 								//the bridge, from 0 to 1.

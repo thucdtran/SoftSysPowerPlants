@@ -26,10 +26,10 @@ class Bridge {
 		Bridge(Bridge* a, Bridge* b, double k);
 		void generateBridge(int n, double k);
 		void generateBridge(int n, double k, int roadPoints);
-		void mutateBridge(double mutation_rate);
+		void mutateBridge();
 		void stripBridge();
 		
-		bool calculateForce(int road_points, pair<double, double>Force);
+		bool calculateForce(int road_points, pair<double, double>Force = pair<double, double>(0,-50000));
 		pair<pair<double, double>, pair<double, double>> distributeLoad(Beam b, pair<double, double> Force, Point forcePoint);
 
 		double calculateFitness();
