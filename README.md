@@ -5,6 +5,8 @@ We wanted to automate part of the bridge generation process. What an experienced
 
 ### [Final Report Website](https://thuctran289.github.io/SoftSysPowerPlants/)
 
+![bridge.gif](resources/demo.gif)
+
 ## Authors:
 [Thuc Tran](https://github.com/thuctran289), [David Papp](https://github.com/davpapp), [Max Schommer](https://github.com/maxschommer), [Joseph Lee](https://github.com/JosephLee19)
 
