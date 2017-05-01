@@ -1,6 +1,7 @@
 # Generative Bridge Design
 ## Software Systems, Spring 2017:
 [Thuc Tran](https://github.com/thuctran289), [David Papp](https://github.com/davpapp), [Max Schommer](https://github.com/maxschommer), [Joseph Lee](https://github.com/JosephLee19)
+
 An experiment in C++ to generate, evaluate, and evolve simple bridges as modeled by pin-beam truss structures.
 
 
